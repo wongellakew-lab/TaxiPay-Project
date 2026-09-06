@@ -1,0 +1,401 @@
+<div class="driver-dashboard-page">
+  <!-- Driver HUD & Metrics Banner -->
+  <div class="driver-hud glass-card">
+    <div class="hud-left">
+      <div class="hud-badge-row">
+        <div class="live-indicator" *ngIf="manifestStore.isTripActive(); else inactiveTripBadge">
+          <span class="pulse-dot"></span>
+          <span>LIVE TRIP ACTIVE</span>
+        </div>
+        <ng-template #inactiveTripBadge>
+          <span class="badge badge-slate">NO ACTIVE TRIP</span>
+        </ng-template>
+        <span class="route-pill font-mono">{{ manifestStore.routeCode() || 'Corridor' }}</span>
+        <span class="driver-tag font-mono">Driver #{{ currentDriverId }}</span>
+      </div>
+
+      <h1 class="hud-title">
+        Captain <span class="text-gradient">{{ auth.currentUser()?.firstName || 'Driver' }} {{ auth.currentUser()?.lastName || '' }}</span>
+      </h1>
+      <p class="hud-route">
+        Assigned Corridor: <strong>{{ manifestStore.routeName() || 'Assigned Route Network' }}</strong>
+      </p>
+    </div>
+
+    <div class="hud-right">
+      <div class="hud-stat-box">
+        <span class="label">TODAY'S REVENUE</span>
+        <span class="val font-mono text-cyan">{{ manifestStore.todayRevenue() | number:'1.2-2' }} <small>ETB</small></span>
+      </div>
+      <div class="hud-stat-box">
+        <span class="label">CURRENT RUN</span>
+        <span class="val font-mono">#{{ manifestStore.currentTripNumber() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-Stat Cards Grid -->
+  <div class="driver-stats-grid">
+    <div class="stat-card glass-card">
+      <div class="stat-icon-box amber">
+        <mat-icon>paid</mat-icon>
+      </div>
+      <div class="stat-meta">
+        <span class="stat-label">TODAY'S REVENUE</span>
+        <span class="stat-val font-mono">{{ manifestStore.todayRevenue() | number:'1.2-2' }} <small>ETB</small></span>
+        <span class="stat-sub">Real-time database sync</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon-box cyan">
+        <mat-icon>groups</mat-icon>
+      </div>
+      <div class="stat-meta">
+        <span class="stat-label">ON-BOARD COMMUTERS</span>
+        <span class="stat-val font-mono">{{ manifestStore.passengerCount() }} Active</span>
+        <span class="stat-sub">{{ manifestStore.availableSeats() }} Seats Available</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon-box emerald">
+        <mat-icon>route</mat-icon>
+      </div>
+      <div class="stat-meta">
+        <span class="stat-label">TODAY'S RUNS</span>
+        <span class="stat-val font-mono">{{ manifestStore.todayTrips() }} Trips</span>
+        <span class="stat-sub">Completed corridors</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon-box purple">
+        <mat-icon>airline_seat_recline_normal</mat-icon>
+      </div>
+      <div class="stat-meta">
+        <span class="stat-label">AVAILABLE SEATS</span>
+        <span class="stat-val font-mono">{{ manifestStore.availableSeats() }} / {{ manifestStore.maxSeats() }}</span>
+        <span class="stat-sub">{{ manifestStore.isFull() ? 'Full Minibus' : 'Boarding Allowed' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Split Layout -->
+  <div class="dashboard-split-layout">
+    <!-- Left Column: Unified Current Active Trip & Live Paid Passengers Manifest -->
+    <div class="manifest-column">
+      <div class="glass-card unified-trip-manifest-card">
+        <!-- Unified Header -->
+        <div class="unified-card-header">
+          <div class="header-left-title">
+            <div class="header-icon-box">
+              <mat-icon>{{ manifestStore.isTripActive() ? 'sports_motorsports' : 'fact_check' }}</mat-icon>
+            </div>
+            <div>
+              <h3 class="unified-title">CURRENT ACTIVE TRIP & PASSENGER MANIFEST</h3>
+              <p class="unified-sub">Real-time corridor trip telemetry and live passenger roster synchronized from database.</p>
+            </div>
+          </div>
+
+          <div class="header-right-badges">
+            <div class="live-status-badge" *ngIf="manifestStore.isTripActive(); else standbyBadge">
+              <span class="pulse-dot"></span>
+              <span class="font-mono">TRIP #{{ manifestStore.currentTripNumber() }} ACTIVE</span>
+            </div>
+            <ng-template #standbyBadge>
+              <span class="badge badge-slate font-mono">STANDBY / READY</span>
+            </ng-template>
+            <span class="passenger-count-pill font-mono">
+              {{ manifestStore.passengerCount() }} / {{ manifestStore.maxSeats() }} ON BOARD
+            </span>
+          </div>
+        </div>
+
+        <!-- Trip Telemetry HUD Banner (When Trip is Active) -->
+        <div class="trip-telemetry-banner" *ngIf="manifestStore.isTripActive()">
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <span class="t-label">CORRIDOR ROUTE</span>
+              <span class="t-val font-mono">{{ manifestStore.activeTrip()?.routeName || manifestStore.routeName() }}</span>
+              <span class="t-sub font-mono text-cyan">{{ manifestStore.activeTrip()?.routeCode || manifestStore.routeCode() }}</span>
+            </div>
+
+            <div class="telemetry-item highlight-dir">
+              <span class="t-label">ACTIVE DIRECTION</span>
+              <span class="t-val font-mono text-cyan">{{ manifestStore.activeTrip()?.directionDisplay || manifestStore.activeTrip()?.direction }}</span>
+              <span class="t-sub font-mono text-muted">Authoritative Corridor Run</span>
+            </div>
+
+            <div class="telemetry-item">
+              <span class="t-label">DEPARTURE TIME</span>
+              <span class="t-val font-mono">{{ manifestStore.activeTrip()?.tripStart | date:'mediumTime' }}</span>
+              <span class="t-sub font-mono text-muted">Trip ID: {{ (manifestStore.activeTrip()?.tripId || '') | slice:0:8 }}..</span>
+            </div>
+
+            <div class="telemetry-item">
+              <span class="t-label">ON-BOARD CAPACITY</span>
+              <span class="t-val font-mono">{{ manifestStore.passengerCount() }} / {{ manifestStore.maxSeats() }}</span>
+              <span class="t-sub font-mono" [class.text-emerald]="!manifestStore.isFull()" [class.text-amber]="manifestStore.isFull()">
+                {{ manifestStore.isFull() ? 'Full Minibus' : (manifestStore.availableSeats() + ' seats open') }}
+              </span>
+            </div>
+
+            <div class="telemetry-item highlight-rev">
+              <span class="t-label">CURRENT TRIP REVENUE</span>
+              <span class="t-val font-mono text-gold">{{ (manifestStore.activeTrip()?.tripRevenue || 0) | number:'1.2-2' }} <small>ETB</small></span>
+              <span class="t-sub font-mono text-muted">Live fare total</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Standby Status Banner (When Trip is Not Active) -->
+        <div class="trip-standby-banner glass-panel" *ngIf="!manifestStore.isTripActive()">
+          <div class="standby-left">
+            <mat-icon class="standby-icon">info</mat-icon>
+            <div>
+              <strong class="standby-title">Minibus On Standby</strong>
+              <p class="standby-desc">No active run in progress. Select a direction and launch a trip from the controller on the right.</p>
+            </div>
+          </div>
+          <div class="standby-stats font-mono text-xs" *ngIf="manifestStore.lastCompletedTrip() as last">
+            <span>Last Run: <strong>{{ last.direction }}</strong></span>
+            <span>Fare: <strong>{{ last.tripRevenue | number:'1.2-2' }} ETB</strong></span>
+          </div>
+        </div>
+
+        <!-- Passenger Roster Section Header -->
+        <div class="roster-section-divider">
+          <div class="divider-label">
+            <mat-icon>groups</mat-icon>
+            <span>LIVE PAID PASSENGER ROSTER</span>
+          </div>
+          <span class="divider-note text-xs text-muted">Updates automatically upon commuter payment</span>
+        </div>
+
+        <!-- Live Paid Passengers Manifest Table -->
+        <div class="manifest-table-wrapper" *ngIf="manifestStore.passengerCount() > 0; else emptyRoster">
+          <table class="manifest-table">
+            <thead>
+              <tr>
+                <th>Passenger</th>
+                <th>Boarded At</th>
+                <th>Alighting At</th>
+                <th>Fare Paid</th>
+                <th>Method</th>
+                <th>Alighting Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of manifestStore.activePassengers()" [class.awaiting-row]="p.alightingStatus === 'AwaitingConfirmation'">
+                <td class="name-cell">
+                  <div class="p-name">
+                    <mat-icon class="user-avatar-icon">person</mat-icon>
+                    <span>{{ p.passengerName }}</span>
+                  </div>
+                  <small class="font-mono text-muted">{{ p.passengerPhone }}</small>
+                </td>
+                <td>
+                  <span class="stop-badge from font-mono">{{ p.boardingNode }}</span>
+                </td>
+                <td>
+                  <span class="stop-badge to font-mono">{{ p.destinationNode }}</span>
+                </td>
+                <td class="fare-cell font-mono">{{ p.fare | number:'1.2-2' }} ETB</td>
+                <td>
+                  <span class="badge" [ngClass]="getBadgeClass(p.paymentMethod)">
+                    {{ p.paymentMethod }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngIf="p.alightingStatus === 'AwaitingConfirmation'; else onBoardTag" class="status-awaiting-pill font-mono">
+                    <span class="pulse-amber-dot"></span>
+                    <span>Waiting for passenger confirmation</span>
+                  </div>
+                  <ng-template #onBoardTag>
+                    <span class="status-onboard-pill font-mono">On Trip</span>
+                  </ng-template>
+                </td>
+                <td class="action-cell">
+                  <button
+                    *ngIf="p.alightingStatus !== 'AwaitingConfirmation'"
+                    mat-stroked-button
+                    class="dropoff-btn text-xs"
+                    (click)="requestAlight(p)"
+                    [disabled]="manifestStore.isActionLoading()"
+                    title="Send alighting confirmation request to passenger"
+                  >
+                    <mat-icon>logout</mat-icon> Alighted
+                  </button>
+
+                  <div *ngIf="p.alightingStatus === 'AwaitingConfirmation'" class="alighting-waiting-group">
+                    <span class="waiting-tag font-mono">
+                      <mat-icon class="waiting-spin">hourglass_empty</mat-icon>
+                      <span>Waiting...</span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #emptyRoster>
+          <div class="empty-manifest-box">
+            <mat-icon class="empty-icon">directions_bus</mat-icon>
+            <h4>No Passengers on Board Current Run</h4>
+            <p>When commuters pay using driver code <strong>{{ currentDriverId }}</strong>, their name, stops, and fare appear here in real-time.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Right Column: Trip Controller -->
+    <div class="controls-column">
+      <!-- Active Trip Controller Card -->
+      <div class="glass-card trip-control-box" *ngIf="manifestStore.isTripActive()">
+        <div class="box-header">
+          <mat-icon class="icon-steering">sports_motorsports</mat-icon>
+          <h3>Active Trip Controller</h3>
+        </div>
+
+        <div class="active-trip-status-hud">
+          <div class="hud-status-badge">
+            <span class="pulse-dot"></span>
+            <span>Trip #{{ manifestStore.currentTripNumber() }} In Progress</span>
+          </div>
+          <p class="active-dir-line font-mono text-cyan">
+            {{ manifestStore.activeTrip()?.directionDisplay || manifestStore.activeTrip()?.direction }}
+          </p>
+        </div>
+
+        <!-- Waiting to End Warning -->
+        <div class="trip-rule-warning waiting-alert" *ngIf="manifestStore.passengerCount() > 0">
+          <mat-icon>warning</mat-icon>
+          <div>
+            <strong>Cannot end trip yet</strong>
+            <p>{{ manifestStore.passengerCount() }} passenger(s) are still on board. All passengers must alight before the trip can end.</p>
+          </div>
+        </div>
+
+        <div class="trip-rule-warning ready-alert" *ngIf="manifestStore.passengerCount() === 0">
+          <mat-icon>check_circle</mat-icon>
+          <div>
+            <strong>Ready to Complete</strong>
+            <p>All passengers have alighted. You may now complete this trip.</p>
+          </div>
+        </div>
+
+        <div class="trip-actions-grid">
+          <button
+            mat-flat-button
+            class="btn-cyan full-width"
+            (click)="completeTrip()"
+            [disabled]="manifestStore.isActionLoading()"
+          >
+            <mat-icon *ngIf="!manifestStore.isActionLoading()">flag</mat-icon>
+            <mat-spinner diameter="18" *ngIf="manifestStore.isActionLoading()"></mat-spinner>
+            <span>End / Complete Trip</span>
+          </button>
+        </div>
+
+        <div class="trip-rule-footer text-xs font-mono">
+          <mat-icon>gavel</mat-icon>
+          <span>Rule: Trip cannot end while passengers are on board.</span>
+        </div>
+      </div>
+
+      <!-- No Active Trip / Start New Trip Controller Card -->
+      <div class="glass-card trip-control-box" *ngIf="!manifestStore.isTripActive()">
+        <div class="box-header">
+          <mat-icon class="icon-steering">directions_car</mat-icon>
+          <h3>Start New Trip</h3>
+        </div>
+
+        <!-- Last Completed Trip Summary Banner -->
+        <div class="completed-summary-card mb-3" *ngIf="manifestStore.lastCompletedTrip() as comp">
+          <div class="completed-header">
+            <mat-icon class="check-icon">check_circle</mat-icon>
+            <div>
+              <span class="font-bold text-sm">Previous Trip Completed</span>
+              <p class="text-xs text-muted font-mono">Trip ID: {{ comp.tripId }}</p>
+            </div>
+          </div>
+          <div class="completed-stats-row font-mono text-xs">
+            <span>Pass: <strong>{{ comp.passengersCount }}</strong></span>
+            <span>Rev: <strong>{{ comp.tripRevenue | number:'1.2-2' }} ETB</strong></span>
+            <span>Ended: <strong>{{ comp.tripEnd | date:'shortTime' }}</strong></span>
+          </div>
+        </div>
+
+        <div class="no-trip-intro">
+          <p class="text-sm text-muted mb-2">No active trip in progress. Select a corridor direction from the database to start a new trip:</p>
+        </div>
+
+        <div class="direction-select-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Corridor Direction</mat-label>
+            <mat-select [value]="selectedDirection()" (selectionChange)="selectedDirection.set($event.value)">
+              <mat-option *ngFor="let d of manifestStore.availableDirections()" [value]="d.directionKey">
+                {{ d.displayLabel }}
+              </mat-option>
+              <mat-option *ngIf="manifestStore.availableDirections().length === 0" value="FORWARD">
+                Outbound: Forward Direction
+              </mat-option>
+              <mat-option *ngIf="manifestStore.availableDirections().length === 0" value="REVERSE">
+                Inbound: Reverse Direction
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="trip-actions-grid">
+          <button
+            mat-flat-button
+            class="btn-cyber full-width"
+            (click)="startTrip()"
+            [disabled]="manifestStore.isActionLoading()"
+          >
+            <mat-icon *ngIf="!manifestStore.isActionLoading()">play_arrow</mat-icon>
+            <mat-spinner diameter="18" *ngIf="manifestStore.isActionLoading()"></mat-spinner>
+            <span>Start New Trip</span>
+          </button>
+        </div>
+
+        <div class="trip-rule-footer text-xs font-mono">
+          <mat-icon>security</mat-icon>
+          <span>Database backed trip creation with real-time commuter synchronization.</span>
+        </div>
+      </div>
+
+      <!-- Shift Shortcuts -->
+      <div class="glass-card links-card">
+        <div class="links-header">
+          <mat-icon class="icon-amber">analytics</mat-icon>
+          <h3>Shift Reports</h3>
+        </div>
+
+        <div class="links-list">
+          <a routerLink="/driver/shift-summary" class="link-item">
+            <div class="link-icon"><mat-icon>query_stats</mat-icon></div>
+            <div class="link-info">
+              <span class="link-title">Detailed Revenue Audit</span>
+              <span class="link-sub">Shift and daily fare logs</span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </a>
+
+          <a routerLink="/driver/route-change" class="link-item">
+            <div class="link-icon"><mat-icon>alt_route</mat-icon></div>
+            <div class="link-info">
+              <span class="link-title">Route Transfer Request</span>
+              <span class="link-sub">Switch assigned corridor</span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

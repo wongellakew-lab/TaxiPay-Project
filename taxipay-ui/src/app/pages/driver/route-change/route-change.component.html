@@ -1,0 +1,203 @@
+<div class="route-change-page">
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>alt_route</mat-icon>
+      <span>ROUTE CORRIDOR TRANSFER</span>
+    </div>
+    <h1 class="page-title">Assigned Route & <span class="text-gradient">Transfer Request</span></h1>
+    <p class="page-subtitle">
+      View your current authorized transit line, track your submitted transfer requests from the database, or apply for an alternate minibus route.
+    </p>
+  </div>
+
+  <!-- Current Assigned Route Section -->
+  <div class="glass-card current-route-card" *ngIf="store.currentRoute() as currRoute">
+    <div class="card-header">
+      <div class="ch-left">
+        <span class="badge badge-emerald">ACTIVE CORRIDOR ASSIGNMENT</span>
+        <h2>{{ currRoute.routeCode }} • {{ currRoute.name }}</h2>
+      </div>
+      <span class="route-status font-mono">Status: Authorized</span>
+    </div>
+
+    <app-route-timeline
+      [routeName]="currRoute.name"
+      [routeCode]="currRoute.routeCode"
+      [nodes]="currRoute.nodes"
+      [selectedFrom]="currRoute.nodes[0]?.id || 'A'"
+      [selectedTo]="currRoute.nodes[currRoute.nodes.length - 1]?.id || 'F'"
+    ></app-route-timeline>
+  </div>
+
+  <!-- Database-backed "MY TRANSFER REQUEST" Section (Requirement 8) -->
+  <div class="glass-card transfer-history-card">
+    <div class="section-title-row">
+      <div class="title-left">
+        <mat-icon class="icon-amber">assignment</mat-icon>
+        <h3>MY TRANSFER REQUEST</h3>
+      </div>
+      <span *ngIf="store.currentRequest() as req" class="status-badge font-mono" [ngClass]="req.status.toLowerCase()">
+        {{ req.status | uppercase }}
+      </span>
+    </div>
+
+    <!-- If Driver has an existing request in DB -->
+    <div *ngIf="store.currentRequest() as req; else noRequestTemplate" class="request-details-box">
+      <div class="request-meta-grid">
+        <div class="rm-item">
+          <span class="rm-label">CURRENT ROUTE:</span>
+          <strong class="rm-val font-mono">{{ req.currentRoute?.routeCode || store.currentRoute()?.routeCode || 'Current Line' }} - {{ req.currentRoute?.name || store.currentRoute()?.name }}</strong>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-label">REQUESTED ROUTE:</span>
+          <strong class="rm-val font-mono text-cyan">{{ req.requestedRoute?.routeCode || req.requestedRouteName || 'Target Line' }} - {{ req.requestedRoute?.name }}</strong>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-label">STATUS:</span>
+          <span class="status-pill-sub font-mono" [ngClass]="req.status.toLowerCase()">
+            <span class="status-dot"></span>
+            {{ req.status }}
+          </span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-label">SUBMITTED:</span>
+          <span class="rm-val font-mono">{{ req.requestedAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+
+        <div class="rm-item" *ngIf="req.reviewedAt">
+          <span class="rm-label">{{ req.status.toLowerCase() === 'approved' ? 'APPROVED ON:' : 'REJECTED ON:' }}</span>
+          <span class="rm-val font-mono" [ngClass]="req.status.toLowerCase() === 'approved' ? 'text-emerald' : 'text-danger'">
+            {{ req.reviewedAt | date:'MMM d, y, h:mm a' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="reason-quote-box" *ngIf="req.reason">
+        <span class="quote-label">Transfer Justification:</span>
+        <p class="quote-text">"{{ req.reason }}"</p>
+      </div>
+
+      <!-- Rejection Reason if Rejected -->
+      <div *ngIf="req.status.toLowerCase() === 'rejected' && req.rejectionReason" class="rejection-alert-box">
+        <mat-icon>error_outline</mat-icon>
+        <div>
+          <strong>Rejection Reason ({{ req.reviewedAt ? (req.reviewedAt | date:'MMM d, y, h:mm a') : 'Reviewed' }}):</strong>
+          <p>{{ req.rejectionReason }}</p>
+        </div>
+      </div>
+
+      <!-- Approved Banner if Approved -->
+      <div *ngIf="req.status.toLowerCase() === 'approved'" class="approved-alert-box">
+        <mat-icon>check_circle</mat-icon>
+        <div>
+          <strong>Corridor Transfer Approved ({{ req.reviewedAt ? (req.reviewedAt | date:'MMM d, y, h:mm a') : 'Active' }}):</strong>
+          <p>Your vehicle is now authorized on line {{ req.requestedRouteName || req.requestedRoute?.name }}. Fare matrices and manifest routes have been synced.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State if No Request Submitted -->
+    <ng-template #noRequestTemplate>
+      <div class="no-request-box">
+        <mat-icon>info</mat-icon>
+        <p>No transfer request submitted.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Transfer Request Form & Guidelines Grid -->
+  <div class="request-grid">
+    <!-- Request Form -->
+    <div class="glass-card form-card">
+      <div class="card-top">
+        <mat-icon class="icon-primary">sync_alt</mat-icon>
+        <div>
+          <h3>Apply for Corridor Transfer</h3>
+          <p>Applications are reviewed by the Municipal Transport Authority.</p>
+        </div>
+      </div>
+
+      <!-- Ongoing Transfer Warning Notice -->
+      <div *ngIf="store.hasOngoingRequest()" class="ongoing-notice-box">
+        <mat-icon>hourglass_top</mat-icon>
+        <p>You already have an ongoing transfer request. Wait for it to be approved or rejected before submitting another request.</p>
+      </div>
+
+      <div class="form-body">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Target Transit Corridor</mat-label>
+          <mat-select [(ngModel)]="requestedRouteId" panelClass="route-select-panel" [disabled]="store.hasOngoingRequest()">
+            <mat-option *ngFor="let r of store.availableRoutes()" [value]="r.id">
+              <strong>{{ r.routeCode }}</strong> • {{ r.name }} ({{ r.nodes.length }} Stops)
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>alt_route</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Transfer Justification / Reason</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [(ngModel)]="requestReason"
+            placeholder="e.g. Relocated residence to Piazza terminal area; Requesting shift transfer for line balance..."
+            [disabled]="store.hasOngoingRequest()"
+          ></textarea>
+          <mat-icon matPrefix>description</mat-icon>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button
+            mat-flat-button
+            class="btn-submit"
+            [disabled]="!requestReason.trim() || !requestedRouteId || store.isSubmitting() || store.hasOngoingRequest()"
+            (click)="submitRequest()"
+          >
+            <mat-icon>send</mat-icon>
+            <span>{{ store.isSubmitting() ? 'Submitting Application...' : 'Submit Transfer Application' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Status / Rules Card -->
+    <div class="glass-card guidelines-card">
+      <div class="card-top">
+        <mat-icon class="icon-amber">info</mat-icon>
+        <div>
+          <h3>Transfer Policies & Guidelines</h3>
+          <p>Official municipal minibus corridor transfer regulations.</p>
+        </div>
+      </div>
+
+      <div class="guidelines-list">
+        <div class="g-item">
+          <mat-icon class="g-icon">check_circle</mat-icon>
+          <div>
+            <strong>Active Trip Requirement</strong>
+            <p>Drivers must finish all active passenger journeys before line transfers take effect.</p>
+          </div>
+        </div>
+
+        <div class="g-item">
+          <mat-icon class="g-icon">schedule</mat-icon>
+          <div>
+            <strong>Review Turnaround</strong>
+            <p>Supervisors approve route changes within 2 to 4 business hours.</p>
+          </div>
+        </div>
+
+        <div class="g-item">
+          <mat-icon class="g-icon">verified_user</mat-icon>
+          <div>
+            <strong>Fare Matrix Auto-Sync</strong>
+            <p>Your vehicle ticket terminal automatically reconfigures once approved.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

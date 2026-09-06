@@ -1,0 +1,93 @@
+<div class="driver-profile-page">
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>badge</mat-icon>
+      <span>DRIVER ACCREDITATION</span>
+    </div>
+    <h1 class="page-title">Captain Profile & <span class="text-gradient">Credentials</span></h1>
+    <p class="page-subtitle">
+      Official driver credentials, municipal licensing details, rating reputation, and assigned transit line.
+    </p>
+  </div>
+
+  <div class="profile-layout-grid">
+    <!-- Left: Profile Hero & License Card -->
+    <div class="glass-card hero-credentials-card">
+      <div class="driver-hero">
+        <div class="avatar-box">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Captain" />
+          <div class="shield-badge"><mat-icon>shield</mat-icon></div>
+        </div>
+
+        <div class="hero-name-col">
+          <h2>{{ profile()?.firstName }} {{ profile()?.lastName }}</h2>
+          <div class="badge-row">
+            <span class="driver-id-badge font-mono">Driver #{{ profile()?.driverId || 'N/A' }}</span>
+            <span class="badge badge-emerald">Verified & Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-3-col">
+        <div class="stat-box">
+          <span class="sb-val font-mono">{{ profile()?.totalTrips || 0 }}</span>
+          <span class="sb-label">Career Trips</span>
+        </div>
+        <div class="stat-box">
+          <span class="sb-val font-mono">{{ (profile()?.totalRevenue || 0) | number:'1.0-0' }} <small>ETB</small></span>
+          <span class="sb-label">Total Revenue</span>
+        </div>
+        <div class="stat-box">
+          <span class="sb-val font-mono">{{ (profile()?.rating ?? 0) | number:'1.1-1' }} ★</span>
+          <span class="sb-label">Rating</span>
+        </div>
+      </div>
+
+      <div class="license-details-box glass-panel">
+        <div class="ld-row">
+          <span class="label">Driving License No.</span>
+          <span class="val font-mono">{{ profile()?.licenseNumber || 'N/A' }}</span>
+        </div>
+        <div class="ld-row">
+          <span class="label">Registered Phone</span>
+          <span class="val font-mono">{{ profile()?.phone || 'N/A' }}</span>
+        </div>
+        <div class="ld-row">
+          <span class="label">Corridor Line</span>
+          <span class="val">{{ profile()?.currentRouteName || 'Assigned Corridor' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Edit Profile / Vehicle Information -->
+    <div class="glass-card edit-card">
+      <div class="card-header">
+        <mat-icon class="icon-amber">manage_accounts</mat-icon>
+        <h3>Profile & Vehicle Preferences</h3>
+      </div>
+      <p class="card-desc">Update contact details or inspect assigned vehicle information.</p>
+
+      <form (ngSubmit)="saveProfile()" class="edit-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>First Name</mat-label>
+          <input matInput [(ngModel)]="firstName" name="firstName" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Last Name</mat-label>
+          <input matInput [(ngModel)]="lastName" name="lastName" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contact Phone</mat-label>
+          <input matInput [(ngModel)]="phone" name="phone" required class="font-mono" />
+        </mat-form-field>
+
+        <button mat-flat-button class="btn-cyber full-width save-btn" type="submit" [disabled]="isSaving()">
+          <mat-icon>save</mat-icon>
+          <span>{{ isSaving() ? 'Saving Changes...' : 'Save Profile Details' }}</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

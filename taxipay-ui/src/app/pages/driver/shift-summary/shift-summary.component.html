@@ -1,0 +1,153 @@
+<div class="shift-summary-page">
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>query_stats</mat-icon>
+      <span>SHIFT AUDIT & REVENUE</span>
+    </div>
+    <h1 class="page-title">Shift Performance & <span class="text-gradient">Earnings Breakdown</span></h1>
+    <p class="page-subtitle">
+      Comprehensive audit of collected digital fares, cash receipts, trip completions, and driver payouts.
+    </p>
+  </div>
+
+  <!-- Shift Hero Banner -->
+  <div class="glass-card shift-hero-card">
+    <div class="hero-metric-group">
+      <div class="hero-metric">
+        <span class="label">TOTAL SHIFT REVENUE</span>
+        <span class="value font-mono text-gradient">
+          {{ (summary()?.totalRevenue || 0) | number:'1.2-2' }} <small>ETB</small>
+        </span>
+        <span class="sub">{{ summary()?.trips?.length || 0 }} Completed Trips Today</span>
+      </div>
+
+      <div class="hero-metric">
+        <span class="label">TOTAL PASSENGERS SERVED</span>
+        <span class="value font-mono">
+          {{ summary()?.totalPassengers || 0 }}
+        </span>
+        <span class="sub">100% Verified Fares</span>
+      </div>
+
+      <div class="hero-metric">
+        <span class="label">AVERAGE FARE</span>
+        <span class="value font-mono text-cyan">
+          {{ (summary()?.averageFare || 0) | number:'1.2-2' }} <small>ETB</small>
+        </span>
+        <span class="sub">Per Passenger</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2-Column: Payment Method Breakdown & Shift Status -->
+  <div class="breakdown-grid">
+    <!-- Digital vs Cash Card -->
+    <div class="glass-card payment-breakdown-card">
+      <div class="card-header">
+        <mat-icon class="icon-cyan">pie_chart</mat-icon>
+        <h3>Digital vs Cash Breakdown</h3>
+      </div>
+      <p class="card-desc">Audit of instantaneous digital wallet transfers vs physical cash:</p>
+
+      <div class="breakdown-bars">
+        <!-- Digital (Telebirr/Wallet/CBE) -->
+        <div class="bar-item">
+          <div class="bar-label-row">
+            <span class="name">
+              <mat-icon class="icon-digital">smartphone</mat-icon>
+              Digital Fares (Telebirr, Wallet, CBE)
+            </span>
+            <span class="amt font-mono">{{ digitalAmount | number:'1.0-0' }} ETB ({{ digitalPercent }}%)</span>
+          </div>
+          <div class="custom-bar">
+            <div class="fill digital" [style.width.%]="digitalPercent"></div>
+          </div>
+        </div>
+
+        <!-- Physical Cash -->
+        <div class="bar-item">
+          <div class="bar-label-row">
+            <span class="name">
+              <mat-icon class="icon-cash">payments</mat-icon>
+              Physical Cash
+            </span>
+            <span class="amt font-mono">{{ cashAmount | number:'1.0-0' }} ETB ({{ cashPercent }}%)</span>
+          </div>
+          <div class="custom-bar">
+            <div class="fill cash" [style.width.%]="cashPercent"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="payout-note glass-panel">
+        <mat-icon>security</mat-icon>
+        <span>Digital revenues are automatically settled into driver bank account at shift conclusion.</span>
+      </div>
+    </div>
+
+    <!-- Shift Metadata Card -->
+    <div class="glass-card shift-meta-card">
+      <div class="card-header">
+        <mat-icon class="icon-amber">timelapse</mat-icon>
+        <h3>Shift Operational Details</h3>
+      </div>
+
+      <div class="meta-rows-list">
+        <div class="meta-row">
+          <span class="m-label">Shift Status</span>
+          <span class="badge badge-emerald">Active & Compliant</span>
+        </div>
+        <div class="meta-row">
+          <span class="m-label">Shift Commenced</span>
+          <span class="m-val font-mono">{{ summary()?.shiftStart ? (summary()?.shiftStart | date:'medium') : 'Today' }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="m-label">Assigned Minibus</span>
+          <span class="m-val font-mono">Toyota HiAce</span>
+        </div>
+        <div class="meta-row">
+          <span class="m-label">Shift ID</span>
+          <span class="m-val font-mono">{{ summary()?.shiftId ? (summary()?.shiftId | slice:0:8) : 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trip by Trip Breakdown Table -->
+  <div class="glass-card trips-table-card">
+    <div class="table-header">
+      <div class="th-title-group">
+        <mat-icon class="icon-amber">alt_route</mat-icon>
+        <h3>Today's Trip Run History</h3>
+      </div>
+      <span class="th-sub font-mono">Shift ID: {{ summary()?.shiftId | slice:0:8 }}..</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="trips-breakdown-table">
+        <thead>
+          <tr>
+            <th>Trip #</th>
+            <th>Direction</th>
+            <th>Passengers</th>
+            <th>Departure Time</th>
+            <th>Arrival Time</th>
+            <th>Trip Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of summary()?.trips">
+            <td class="font-mono trip-num-cell">#{{ t.tripNumber }}</td>
+            <td class="direction-cell">
+              <strong>{{ t.direction }}</strong>
+            </td>
+            <td class="font-mono">{{ t.passengerCount }} Commuters</td>
+            <td class="font-mono text-muted text-xs">{{ t.startedAt | date:'shortTime' }}</td>
+            <td class="font-mono text-muted text-xs">{{ t.completedAt ? (t.completedAt | date:'shortTime') : 'In Progress' }}</td>
+            <td class="revenue-cell font-mono">{{ t.tripRevenue | number:'1.2-2' }} ETB</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
