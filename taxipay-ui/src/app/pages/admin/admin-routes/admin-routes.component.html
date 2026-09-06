@@ -1,0 +1,145 @@
+<div class="admin-routes-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="badge-tag">
+        <mat-icon>alt_route</mat-icon>
+        <span>TRANSIT NETWORK TOPOLOGY</span>
+      </div>
+      <h1 class="page-title">Route & Station <span class="text-gradient-cyan">Management</span></h1>
+      <p class="page-subtitle">Configure urban minibus lines, transit stations, and geographic node coordinates.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button class="btn-cyan" (click)="openCreateModal()">
+        <mat-icon>add_road</mat-icon>
+        <span>Create Transit Line</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Routes Grid Cards -->
+  <div class="routes-cards-grid">
+    <div *ngFor="let r of routes()" class="glass-card route-card" [class.inactive-card]="!r.isActive">
+      <div class="rc-header">
+        <div class="rc-title-box">
+          <span class="route-code-badge font-mono">{{ r.routeCode }}</span>
+          <h3>{{ r.name }}</h3>
+        </div>
+        <mat-slide-toggle
+          [checked]="r.isActive"
+          (change)="toggleStatus(r)"
+          color="primary"
+          aria-label="Toggle route active status"
+        >
+          {{ r.isActive ? 'Active' : 'Disabled' }}
+        </mat-slide-toggle>
+      </div>
+
+      <div class="rc-meta-row">
+        <div class="meta-item">
+          <mat-icon>place</mat-icon>
+          <span>{{ r.nodes.length }} Station Stops</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>directions_bus</mat-icon>
+          <span>{{ r.activeDriversCount }} Minibuses on Duty</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>schedule</mat-icon>
+          <span>Created {{ r.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <!-- Stops Timeline Visualizer -->
+      <div class="stations-timeline">
+        <div *ngFor="let node of r.nodes; let i = index; let last = last" class="timeline-step">
+          <div class="step-circle font-mono">{{ node.id }}</div>
+          <div class="step-info">
+            <span class="node-name">{{ node.name }}</span>
+            <span class="node-coords font-mono">{{ node.latitude | number:'1.4-4' }}, {{ node.longitude | number:'1.4-4' }}</span>
+          </div>
+          <div *ngIf="!last" class="step-connector"></div>
+        </div>
+      </div>
+
+      <div class="rc-footer">
+        <a mat-stroked-button class="btn-fares" [routerLink]="['/admin/fares']" [queryParams]="{ routeId: r.id }">
+          <mat-icon>price_change</mat-icon>
+          <span>Fare Matrix</span>
+        </a>
+        <div class="btn-group">
+          <button mat-icon-button (click)="openEditModal(r)" matTooltip="Edit Route Nodes">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteRoute(r)" matTooltip="Delete Route">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Route Modal -->
+  <div *ngIf="showModal" class="modal-backdrop">
+    <div class="glass-card modal-box modal-wide">
+      <div class="modal-header">
+        <h3>{{ editingRouteId ? 'Edit Transit Line' : 'Create Urban Transit Line' }}</h3>
+        <button mat-icon-button (click)="closeModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Route Code</mat-label>
+            <input matInput [(ngModel)]="formRouteCode" placeholder="e.g. BM-003" class="font-mono" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Route Corridor Name</mat-label>
+            <input matInput [(ngModel)]="formRouteName" placeholder="e.g. Megenagna ↔ Tor Hailoch" />
+          </mat-form-field>
+        </div>
+
+        <!-- Stations List Editor -->
+        <div class="stops-section">
+          <div class="stops-header">
+            <strong>Sequential Station Nodes (Stops)</strong>
+            <button mat-button class="btn-add-stop" (click)="addNode()">
+              <mat-icon>add</mat-icon>
+              <span>Add Stop</span>
+            </button>
+          </div>
+
+          <div class="stops-list-inputs">
+            <div *ngFor="let node of formNodes; let idx = index" class="stop-input-row">
+              <div class="node-idx-badge font-mono">{{ node.id }}</div>
+              <mat-form-field appearance="outline" class="stop-name-field">
+                <mat-label>Station Name</mat-label>
+                <input matInput [(ngModel)]="node.name" placeholder="Station name" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="stop-coord-field">
+                <mat-label>Latitude</mat-label>
+                <input matInput type="number" [(ngModel)]="node.latitude" step="0.0001" class="font-mono" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="stop-coord-field">
+                <mat-label>Longitude</mat-label>
+                <input matInput type="number" [(ngModel)]="node.longitude" step="0.0001" class="font-mono" />
+              </mat-form-field>
+              <button mat-icon-button color="warn" [disabled]="formNodes.length <= 2" (click)="removeNode(idx)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button mat-button (click)="closeModal()">Cancel</button>
+        <button mat-flat-button class="btn-cyan" [disabled]="!isFormValid()" (click)="saveRoute()">
+          {{ editingRouteId ? 'Save Changes' : 'Create Route' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,171 @@
+<div class="admin-dashboard-page">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-left">
+      <div class="admin-badge">
+        <mat-icon>shield</mat-icon>
+        <span>TAXI TRANSIT SUPERVISORY CONSOLE</span>
+      </div>
+      <h1 class="page-title">Platform <span class="text-gradient-gold">Command Center</span></h1>
+      <p class="page-subtitle">Real-time telemetry, revenue operations, driver approvals, and corridor arbitration.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button class="btn-purple" routerLink="/admin/drivers">
+        <mat-icon>person_add</mat-icon>
+        <span>Review Drivers ({{ driverStore.pendingApprovalCount() }})</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Key KPI Metrics Row -->
+  <div class="metrics-grid">
+    <div class="glass-card metric-card gold-border">
+      <div class="card-top">
+        <span class="m-label">TOTAL PLATFORM REVENUE</span>
+        <div class="m-icon-box bg-gold-subtle">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+      </div>
+      <div class="m-val font-mono">
+        {{ adminStatsStore.totalRevenue() | number:'1.2-2' }} <small>ETB</small>
+      </div>
+      <div class="m-sub text-success">
+        <mat-icon class="sub-icon">trending_up</mat-icon>
+        <span>Today: +{{ adminStatsStore.todayRevenue() | number:'1.2-2' }} ETB</span>
+      </div>
+    </div>
+
+    <div class="glass-card metric-card blue-border">
+      <div class="card-top">
+        <span class="m-label">ACTIVE MINIBUSES ON SHIFT</span>
+        <div class="m-icon-box bg-blue-subtle">
+          <mat-icon>directions_bus</mat-icon>
+        </div>
+      </div>
+      <div class="m-val font-mono">
+        {{ adminStatsStore.activeMinibuses() }} <small>/ {{ adminStatsStore.totalDrivers() }}</small>
+      </div>
+      <div class="m-sub">
+        <span class="live-dot"></span>
+        <span>{{ adminStatsStore.activeTrips() }} Active Trips in Progress</span>
+      </div>
+    </div>
+
+    <div class="glass-card metric-card cyan-border">
+      <div class="card-top">
+        <span class="m-label">COMMUTERS REGISTERED</span>
+        <div class="m-icon-box bg-cyan-subtle">
+          <mat-icon>groups</mat-icon>
+        </div>
+      </div>
+      <div class="m-val font-mono">
+        {{ adminStatsStore.totalPassengers() | number }}
+      </div>
+      <div class="m-sub">
+        <span>{{ adminStatsStore.totalTrips() | number }} All-Time Ride Completions</span>
+      </div>
+    </div>
+
+    <div class="glass-card metric-card purple-border" [class.has-alert]="totalPendingActions() > 0">
+      <div class="card-top">
+        <span class="m-label">PENDING ACTIONS</span>
+        <div class="m-icon-box bg-purple-subtle">
+          <mat-icon>notification_important</mat-icon>
+        </div>
+      </div>
+      <div class="m-val font-mono">
+        {{ totalPendingActions() }}
+      </div>
+      <div class="m-sub">
+        <span>{{ disputeStore.openCount() }} Open Disputes &bull; {{ routeRequestStore.pendingCount() }} Route Transfers</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Action Queues (HUD Banner) -->
+  <div *ngIf="totalPendingActions() > 0" class="glass-card pending-queue-banner">
+    <div class="queue-left">
+      <div class="queue-icon-circle">
+        <mat-icon>pending_actions</mat-icon>
+      </div>
+      <div class="queue-text">
+        <h4>{{ totalPendingActions() }} Administrative Items Require Attention</h4>
+        <p>Authoritative tasks waiting in queue from drivers and commuters.</p>
+      </div>
+    </div>
+
+    <div class="queue-chips">
+      <a *ngIf="driverStore.pendingApprovalCount() > 0" routerLink="/admin/drivers" class="queue-chip chip-blue">
+        <mat-icon>badge</mat-icon>
+        <span>{{ driverStore.pendingApprovalCount() }} Pending Drivers</span>
+      </a>
+
+      <a *ngIf="disputeStore.openCount() > 0" routerLink="/admin/disputes" class="queue-chip chip-red">
+        <mat-icon>gavel</mat-icon>
+        <span>{{ disputeStore.openCount() }} Open Disputes</span>
+      </a>
+
+      <a *ngIf="routeRequestStore.pendingCount() > 0" routerLink="/admin/route-requests" class="queue-chip chip-gold">
+        <mat-icon>sync_alt</mat-icon>
+        <span>{{ routeRequestStore.pendingCount() }} Route Requests</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom 2-Col Grid: 7-Day Revenue Trends & Live Telemetry -->
+  <div class="analytics-split-grid">
+    <!-- 7-Day Revenue Trend -->
+    <div class="glass-card chart-card">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <mat-icon class="icon-gold">bar_chart</mat-icon>
+          <h3>7-Day Platform Revenue (ETB)</h3>
+        </div>
+        <a mat-button class="btn-link font-mono" routerLink="/admin/analytics">View Full Analytics &rarr;</a>
+      </div>
+
+      <div class="revenue-bars-container">
+        <div *ngFor="let item of adminStatsStore.dailyRevenueHistory()" class="bar-col">
+          <div class="bar-fill-track">
+            <div
+              class="bar-fill"
+              [style.height.%]="getBarHeight(item.totalRevenue)"
+              [matTooltip]="item.totalRevenue + ' ETB (' + item.tripsCount + ' trips)'"
+            ></div>
+          </div>
+          <span class="bar-val font-mono">{{ item.totalRevenue | number:'1.0-0' }}</span>
+          <span class="bar-label font-mono">{{ item.date }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Activity Telemetry Feed -->
+    <div class="glass-card feed-card">
+      <div class="card-header-row">
+        <div class="card-title-group">
+          <mat-icon class="icon-cyan">rss_feed</mat-icon>
+          <h3>Live Operations Stream</h3>
+        </div>
+        <span class="live-status-pill font-mono">LIVE FEED</span>
+      </div>
+
+      <div class="activities-list">
+        <div *ngFor="let act of adminStatsStore.recentActivities()" class="activity-item">
+          <div class="act-icon-box" [ngClass]="getActTypeClass(act.type)">
+            <mat-icon>{{ getActIcon(act.type) }}</mat-icon>
+          </div>
+          <div class="act-details">
+            <div class="act-header">
+              <strong>{{ act.title }}</strong>
+              <span class="act-time font-mono">{{ act.timestamp | date:'shortTime' }}</span>
+            </div>
+            <p class="act-desc">{{ act.description }}</p>
+          </div>
+          <span class="act-status-badge font-mono" [ngClass]="act.status.toLowerCase()">
+            {{ act.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

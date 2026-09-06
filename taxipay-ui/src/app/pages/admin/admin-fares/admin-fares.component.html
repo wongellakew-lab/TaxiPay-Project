@@ -1,0 +1,192 @@
+<div class="admin-fares-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="badge-tag">
+        <mat-icon>price_change</mat-icon>
+        <span>REGULATED TARIFF MATRICES</span>
+      </div>
+      <h1 class="page-title">Fare Matrix <span class="text-gradient-gold">Regulation</span></h1>
+      <p class="page-subtitle">Configure origin-to-destination fares, generate hop-based pricing, and toggle tariff rules.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button class="btn-gold" (click)="openBatchGenerateModal()">
+        <mat-icon>auto_fix_high</mat-icon>
+        <span>Auto-Generate Tariff Matrix</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Route Selector Card -->
+  <div class="glass-card selector-card">
+    <div class="selector-row">
+      <mat-form-field appearance="outline" class="route-select-field">
+        <mat-label>Select Corridor Route</mat-label>
+        <mat-select [ngModel]="selectedRouteId" (selectionChange)="onRouteChange($event.value)" panelClass="route-select-panel">
+          <mat-option *ngFor="let r of routes()" [value]="r.id">
+            <strong>{{ r.routeCode }}</strong> — {{ r.name }} ({{ r.nodes.length }} Stops)
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>alt_route</mat-icon>
+      </mat-form-field>
+
+      <div *ngIf="currentRoute" class="route-quick-info font-mono">
+        <span>Stops: <strong>{{ currentRoute.nodes.length }}</strong></span>
+        <span>&bull;</span>
+        <span>Active Rules: <strong>{{ getActiveCount() }}</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matrix Grid & Pairs Table -->
+  <div class="fares-content-grid">
+    <!-- 2-Dimensional Visual Matrix Grid -->
+    <div class="glass-card matrix-view-card">
+      <div class="card-header">
+        <h3>Corridor Matrix Grid (ETB)</h3>
+        <span class="sub-tag font-mono">{{ currentRoute?.routeCode }}</span>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table *ngIf="currentRoute" class="fare-grid-table">
+          <thead>
+            <tr>
+              <th class="corner-cell">FROM \\ TO</th>
+              <th *ngFor="let node of currentRoute.nodes" class="node-header font-mono">
+                {{ node.id }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of currentRoute.nodes">
+              <td class="row-header font-mono">
+                <strong>{{ row.id }}</strong> ({{ row.name }})
+              </td>
+              <td *ngFor="let col of currentRoute.nodes" class="fare-cell font-mono">
+                <ng-container *ngIf="row.id === col.id; else fareValue">
+                  <span class="self-cell">—</span>
+                </ng-container>
+                <ng-template #fareValue>
+                  <input
+                    type="number"
+                    class="cell-input font-mono"
+                    [value]="getFareAmount(row.id, col.id)"
+                    (change)="onQuickFareChange(row.id, col.id, $event)"
+                  />
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stop-by-Stop Rules Table -->
+    <div class="glass-card rules-list-card">
+      <div class="card-header">
+        <h3>Station Pair Rules List</h3>
+        <button mat-button class="btn-add-pair" (click)="openAddPairModal()">
+          <mat-icon>add</mat-icon>
+          <span>Add Pair Rule</span>
+        </button>
+      </div>
+
+      <div class="rules-table-wrap">
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th class="sortable-th" (click)="toggleSort('from')">
+                <div class="th-content">
+                  <span>FROM</span>
+                  <mat-icon class="sort-icon">{{ getSortIcon('from') }}</mat-icon>
+                </div>
+              </th>
+              <th class="sortable-th" (click)="toggleSort('to')">
+                <div class="th-content">
+                  <span>TO</span>
+                  <mat-icon class="sort-icon">{{ getSortIcon('to') }}</mat-icon>
+                </div>
+              </th>
+              <th class="sortable-th" (click)="toggleSort('fare')">
+                <div class="th-content">
+                  <span>FARE (ETB)</span>
+                  <mat-icon class="sort-icon">{{ getSortIcon('fare') }}</mat-icon>
+                </div>
+              </th>
+              <th class="sortable-th" (click)="toggleSort('status')">
+                <div class="th-content">
+                  <span>STATUS</span>
+                  <mat-icon class="sort-icon">{{ getSortIcon('status') }}</mat-icon>
+                </div>
+              </th>
+              <th class="text-right">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of sortedFareMatrices()">
+              <td>
+                <span class="node-pill font-mono">{{ f.fromNode }}</span>
+                <span class="node-label">{{ getNodeName(f.fromNode) }}</span>
+              </td>
+              <td>
+                <span class="node-pill font-mono">{{ f.toNode }}</span>
+                <span class="node-label">{{ getNodeName(f.toNode) }}</span>
+              </td>
+              <td class="font-mono">
+                <strong>{{ f.fare | number:'1.2-2' }} ETB</strong>
+              </td>
+              <td>
+                <mat-slide-toggle
+                  [checked]="f.isActive"
+                  (change)="toggleFareStatus(f)"
+                  color="primary"
+                ></mat-slide-toggle>
+              </td>
+              <td class="text-right">
+                <button mat-icon-button (click)="openEditFareModal(f)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="fareMatrices().length === 0">
+              <td colspan="5" class="empty-cell">
+                <p>No fare rules defined for this route. Click 'Auto-Generate Tariff Matrix' to populate.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Auto-Generate Modal -->
+  <div *ngIf="showBatchModal" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>Auto-Generate Route Tariff Matrix</h3>
+        <button mat-icon-button (click)="showBatchModal = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Automatically compute standard hop-based fares across all station pairs on
+          <strong>{{ currentRoute?.routeCode }} ({{ currentRoute?.name }})</strong>:
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Base Rate Per Stop Hop (ETB)</mat-label>
+          <input matInput type="number" [(ngModel)]="batchHopRate" min="1" step="1" class="font-mono" />
+          <mat-hint>E.g. 5 ETB per hop (1 hop = 5 ETB, 2 hops = 10 ETB, 5 hops = 25 ETB)</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="modal-footer">
+        <button mat-button (click)="showBatchModal = false">Cancel</button>
+        <button mat-flat-button class="btn-gold" (click)="confirmGenerateSymmetric()">
+          Generate & Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

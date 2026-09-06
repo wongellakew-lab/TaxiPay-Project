@@ -1,0 +1,348 @@
+<div class="admin-drivers-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="badge-tag">
+        <mat-icon>badge</mat-icon>
+        <span>MINIBUS OPERATORS & APPLICANTS</span>
+      </div>
+      <h1 class="page-title">Driver <span class="text-gradient-blue">Management & Accreditation</span></h1>
+      <p class="page-subtitle">Verify driver licenses, manage active accreditations, and assign fixed transit lines.</p>
+    </div>
+  </div>
+
+  <!-- Controls & Filter Bar -->
+  <div class="glass-card controls-card">
+    <div class="filter-group">
+      <!-- Search input -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by Name, Phone, or License</mat-label>
+        <input matInput [ngModel]="driverStore.searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="e.g. Abebe or DL-09923" />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Status Filter Tabs -->
+      <div class="status-pill-group">
+        <button
+          class="status-pill"
+          [class.active]="driverStore.selectedStatus() === 'all'"
+          (click)="setStatusFilter('all')"
+        >
+          All ({{ driverStore.totalDrivers() }})
+        </button>
+        <button
+          class="status-pill pending"
+          [class.active]="driverStore.selectedStatus() === 'pending'"
+          (click)="setStatusFilter('pending')"
+        >
+          <span class="dot"></span>
+          Pending Review ({{ driverStore.pendingApprovalCount() }})
+        </button>
+        <button
+          class="status-pill active-pill"
+          [class.active]="driverStore.selectedStatus() === 'active'"
+          (click)="setStatusFilter('active')"
+        >
+          <span class="dot"></span>
+          Active ({{ driverStore.activeDriverCount() }})
+        </button>
+        <button
+          class="status-pill rejected-pill"
+          [class.active]="driverStore.selectedStatus() === 'rejected'"
+          (click)="setStatusFilter('rejected')"
+        >
+          <span class="dot"></span>
+          Rejected ({{ getCount('Rejected') }})
+        </button>
+        <button
+          class="status-pill suspended"
+          [class.active]="driverStore.selectedStatus() === 'suspended'"
+          (click)="setStatusFilter('suspended')"
+        >
+          <span class="dot"></span>
+          Suspended ({{ getCount('Suspended') }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drivers Table Card -->
+  <div class="glass-card table-card">
+    <div class="table-responsive">
+      <table class="admin-data-table">
+        <thead>
+          <tr>
+            <th class="sortable-th" (click)="toggleSort('name')">
+              <div class="th-content">
+                <span>DRIVER CODE / NAME</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('name') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('phone')">
+              <div class="th-content">
+                <span>PHONE NUMBER</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('phone') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('license')">
+              <div class="th-content">
+                <span>DRIVING LICENSE</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('license') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('route')">
+              <div class="th-content">
+                <span>CORRIDOR / ROUTE</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('route') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('performance')">
+              <div class="th-content">
+                <span>PERFORMANCE</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('performance') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('status')">
+              <div class="th-content">
+                <span>STATUS</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('status') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('date')">
+              <div class="th-content">
+                <span>REGISTERED</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('date') }}</mat-icon>
+              </div>
+            </th>
+            <th class="text-right">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of driverStore.filteredDrivers()" [class.pending-row]="d.status === 'Pending'" [class.rejected-row]="d.status === 'Rejected'">
+            <!-- Driver Info -->
+            <td>
+              <div class="driver-name-box">
+                <div class="avatar-circle">
+                  {{ d.firstName.charAt(0) }}
+                </div>
+                <div>
+                  <div class="driver-fullname">{{ d.firstName }} {{ d.lastName }}</div>
+                  <div class="driver-id-tag font-mono">{{ d.driverId || 'APPLICATION PENDING' }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Phone -->
+            <td class="font-mono">{{ d.phone }}</td>
+
+            <!-- License -->
+            <td>
+              <span class="license-badge font-mono">{{ d.licenseNumber }}</span>
+            </td>
+
+            <!-- Route Assignment -->
+            <td>
+              <div *ngIf="d.currentRouteCode" class="route-tag font-mono">
+                <mat-icon>alt_route</mat-icon>
+                <span>{{ d.currentRouteCode }}: {{ d.currentRouteName }}</span>
+              </div>
+              <div *ngIf="!d.currentRouteCode && d.preferredRouteCode" class="preferred-route-tag font-mono">
+                <mat-icon>star_border</mat-icon>
+                <span>Pref: {{ d.preferredRouteCode }} ({{ d.preferredRouteName }})</span>
+              </div>
+              <div *ngIf="!d.currentRouteCode && !d.preferredRouteCode">
+                <span class="text-muted font-mono">Unassigned</span>
+              </div>
+            </td>
+
+            <!-- Performance -->
+            <td>
+              <div class="perf-box">
+                <div class="perf-rating">
+                  <mat-icon class="star-icon">star</mat-icon>
+                  <span>{{ d.rating > 0 ? (d.rating | number:'1.1-1') : '—' }}</span>
+                </div>
+                <span class="perf-trips font-mono">{{ d.totalTrips }} trips &bull; {{ d.totalRevenue | number:'1.0-0' }} ETB</span>
+              </div>
+            </td>
+
+            <!-- Status Badge -->
+            <td>
+              <span class="status-badge font-mono" [ngClass]="d.status.toLowerCase()">
+                {{ d.status }}
+              </span>
+              <div *ngIf="d.status === 'Rejected' && d.rejectionReason" class="rejection-reason-text">
+                {{ d.rejectionReason }}
+              </div>
+            </td>
+
+            <!-- Registered Date -->
+            <td class="font-mono text-muted text-sm">
+              {{ d.createdAt | date:'mediumDate' }}
+            </td>
+
+            <!-- Action Buttons -->
+            <td class="text-right actions-cell">
+              <!-- If Pending -->
+              <ng-container *ngIf="d.status === 'Pending'">
+                <button mat-flat-button class="btn-approve" (click)="openApproveModal(d)">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Approve</span>
+                </button>
+                <button mat-stroked-button color="warn" class="btn-reject" (click)="openRejectModal(d)">
+                  <mat-icon>cancel</mat-icon>
+                  <span>Reject</span>
+                </button>
+              </ng-container>
+
+              <!-- If Active -->
+              <ng-container *ngIf="d.status === 'Active'">
+                <button mat-stroked-button class="btn-assign" (click)="openAssignModal(d)">
+                  <mat-icon>alt_route</mat-icon>
+                  <span>Assign Route</span>
+                </button>
+                <button mat-stroked-button color="warn" class="btn-suspend" (click)="suspendDriver(d)">
+                  <mat-icon>block</mat-icon>
+                  <span>Suspend</span>
+                </button>
+              </ng-container>
+
+              <!-- If Suspended or Rejected -->
+              <ng-container *ngIf="d.status === 'Suspended' || d.status === 'Rejected'">
+                <button mat-flat-button class="btn-activate" (click)="openApproveModal(d)">
+                  <mat-icon>restart_alt</mat-icon>
+                  <span>Re-Activate</span>
+                </button>
+              </ng-container>
+            </td>
+          </tr>
+
+          <tr *ngIf="driverStore.filteredDrivers().length === 0">
+            <td colspan="8" class="empty-state-cell">
+              <mat-icon>person_search</mat-icon>
+              <p>No drivers matching the filter criteria.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal: Approve Driver & Route Assignment -->
+  <div *ngIf="selectedDriverForApprove" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>Accredit & Approve Driver</h3>
+        <button mat-icon-button (click)="selectedDriverForApprove = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Approve driver accreditation for
+          <strong>{{ selectedDriverForApprove.firstName }} {{ selectedDriverForApprove.lastName }}</strong>
+          (License: {{ selectedDriverForApprove.licenseNumber }}).
+        </p>
+
+        <div *ngIf="selectedDriverForApprove.preferredRouteName" class="preferred-info-box">
+          <mat-icon>info</mat-icon>
+          <span>Driver's Requested Route: <strong>{{ selectedDriverForApprove.preferredRouteCode }} — {{ selectedDriverForApprove.preferredRouteName }}</strong></span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width mt-3">
+          <mat-label>Assign Transit Corridor Route</mat-label>
+          <mat-select [(ngModel)]="approveAssignedRouteId" panelClass="route-select-panel">
+            <mat-option [value]="''">-- Assign Later / Keep Current --</mat-option>
+            <mat-option *ngFor="let r of driverStore.routes()" [value]="r.id">
+              <strong>{{ r.routeCode }}</strong> — {{ r.name }} ({{ r.nodes.length }} Stops)
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="modal-footer">
+        <button mat-button (click)="selectedDriverForApprove = null">Cancel</button>
+        <button mat-flat-button class="btn-approve" (click)="confirmDriverApproval()">
+          <mat-icon>check_circle</mat-icon> Confirm & Activate Driver
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reject Driver -->
+  <div *ngIf="selectedDriverForReject" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>Reject Driver Application</h3>
+        <button mat-icon-button (click)="selectedDriverForReject = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Reject application for
+          <strong>{{ selectedDriverForReject.firstName }} {{ selectedDriverForReject.lastName }}</strong>
+          (License: {{ selectedDriverForReject.licenseNumber }}).
+        </p>
+        <p class="text-sm text-warn-light mb-2">
+          A rejection reason is required so the applicant can understand why their registration was not approved.
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rejection Reason *</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="rejectionReasonText"
+            placeholder="e.g. Invalid commercial driving license or background verification failed."
+            required
+          ></textarea>
+        </mat-form-field>
+      </div>
+      <div class="modal-footer">
+        <button mat-button (click)="selectedDriverForReject = null">Cancel</button>
+        <button
+          mat-flat-button
+          color="warn"
+          [disabled]="!rejectionReasonText.trim()"
+          (click)="confirmDriverRejection()"
+        >
+          <mat-icon>cancel</mat-icon> Confirm Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Route Assignment -->
+  <div *ngIf="selectedDriverForRoute" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>Assign Transit Route</h3>
+        <button mat-icon-button (click)="selectedDriverForRoute = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Assign a regulated fixed route to driver
+          <strong>{{ selectedDriverForRoute.firstName }} {{ selectedDriverForRoute.lastName }}</strong>
+          ({{ selectedDriverForRoute.driverId || selectedDriverForRoute.licenseNumber }}):
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Corridor Route</mat-label>
+          <mat-select [(ngModel)]="targetRouteId" panelClass="route-select-panel">
+            <mat-option *ngFor="let r of driverStore.routes()" [value]="r.id">
+              <strong>{{ r.routeCode }}</strong> — {{ r.name }} ({{ r.nodes.length }} Stops)
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="modal-footer">
+        <button mat-button (click)="selectedDriverForRoute = null">Cancel</button>
+        <button mat-flat-button class="btn-taxi-blue" [disabled]="!targetRouteId" (click)="confirmRouteAssignment()">
+          Confirm Assignment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

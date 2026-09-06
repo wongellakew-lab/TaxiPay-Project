@@ -1,0 +1,126 @@
+<div class="admin-analytics-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="badge-tag">
+        <mat-icon>analytics</mat-icon>
+        <span>FINANCIAL AUDIT & PLATFORM TELEMETRY</span>
+      </div>
+      <h1 class="page-title">Platform <span class="text-gradient-cyan">Analytics & Revenue Reports</span></h1>
+      <p class="page-subtitle">Deep dive into transit turnover, commuter growth metrics, and fleet utilization.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button class="btn-cyan" (click)="exportReport()">
+        <mat-icon>download</mat-icon>
+        <span>Export Financial CSV</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Financial Summary Cards -->
+  <div class="summary-cards-grid">
+    <div class="glass-card stat-box">
+      <span class="stat-title">GROSS TRANSIT TURNOVER</span>
+      <div class="stat-num font-mono">
+        {{ (analytics()?.totalRevenue || 0) | number:'1.2-2' }} <small>ETB</small>
+      </div>
+      <span class="stat-sub text-success">+{{ (analytics()?.todayRevenue || 0) | number:'1.2-2' }} ETB collected today</span>
+    </div>
+
+    <div class="glass-card stat-box">
+      <span class="stat-title">COMPLETED RIDE JOURNEYS</span>
+      <div class="stat-num font-mono">
+        {{ (analytics()?.totalTrips || 0) | number }}
+      </div>
+      <span class="stat-sub">{{ analytics()?.activeTrips || 0 }} live trips in progress</span>
+    </div>
+
+    <div class="glass-card stat-box">
+      <span class="stat-title">REGISTERED COMMUTERS</span>
+      <div class="stat-num font-mono">
+        {{ (analytics()?.totalPassengers || 0) | number }}
+      </div>
+      <span class="stat-sub">Active passenger digital accounts</span>
+    </div>
+
+    <div class="glass-card stat-box">
+      <span class="stat-title">ACCREDITED FLEET DRIVERS</span>
+      <div class="stat-num font-mono text-cyan">
+        {{ (analytics()?.totalDrivers || 0) | number }}
+      </div>
+      <span class="stat-sub">{{ analytics()?.activeDriversOnShift || 0 }} on active duty shift</span>
+    </div>
+  </div>
+
+  <!-- 7-Day Financial Audit Table -->
+  <div class="glass-card report-table-card">
+    <div class="card-header">
+      <h3>Daily Revenue & Trip Volume Breakdown</h3>
+      <span class="badge-sub font-mono">PAST 7 DAYS</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>TRIPS RECORDED</th>
+            <th>GROSS FARE COLLECTED (ETB)</th>
+            <th>PLATFORM COMMISSION (1.5%)</th>
+            <th>DRIVER PAYOUT POOL (98.5%)</th>
+            <th>AVERAGE FARE / RIDE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of analytics()?.dailyRevenueHistory">
+            <td class="font-mono font-bold">{{ item.date }}</td>
+            <td class="font-mono">{{ item.tripsCount }} trips</td>
+            <td class="font-mono text-gold font-bold">{{ item.totalRevenue | number:'1.2-2' }} ETB</td>
+            <td class="font-mono text-cyan">{{ item.totalRevenue * 0.015 | number:'1.2-2' }} ETB</td>
+            <td class="font-mono text-success">{{ item.totalRevenue * 0.985 | number:'1.2-2' }} ETB</td>
+            <td class="font-mono">{{ item.tripsCount > 0 ? (item.totalRevenue / item.tripsCount | number:'1.2-2') : '0.00' }} ETB</td>
+          </tr>
+          <tr *ngIf="!analytics()?.dailyRevenueHistory?.length">
+            <td colspan="6" class="text-center text-muted">No revenue history recorded yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Corridor Leaderboard -->
+  <div class="corridors-section">
+    <h3 class="section-title">Corridor Performance & Network Telemetry</h3>
+    <div class="corridors-grid" *ngIf="analytics()?.corridorStats?.length; else emptyCorridors">
+      <div *ngFor="let c of analytics()?.corridorStats" class="glass-card corridor-card">
+        <div class="corridor-top">
+          <div class="corridor-badge font-mono">{{ c.routeCode }}</div>
+          <h4>{{ c.routeName }}</h4>
+        </div>
+        <div class="corridor-stats font-mono">
+          <div class="c-stat">
+            <span class="c-label">Revenue Share:</span>
+            <span class="c-val">{{ c.revenueSharePercent }}% ({{ c.totalRevenue | number:'1.0-0' }} ETB)</span>
+          </div>
+          <div class="c-stat">
+            <span class="c-label">Active Minibuses:</span>
+            <span class="c-val">{{ c.activeDriversCount }} Minibuses</span>
+          </div>
+          <div class="c-stat">
+            <span class="c-label">Total Completed Trips:</span>
+            <span class="c-val">{{ c.totalTripsCount }} Trips</span>
+          </div>
+          <div class="c-stat">
+            <span class="c-label">Primary Terminal:</span>
+            <span class="c-val">{{ c.peakStation || 'Terminal' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #emptyCorridors>
+      <div class="glass-card empty-card">
+        <p class="text-muted">No corridor statistics available.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

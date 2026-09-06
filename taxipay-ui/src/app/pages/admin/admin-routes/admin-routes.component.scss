@@ -1,0 +1,355 @@
+.admin-routes-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    margin-bottom: 8px;
+
+    mat-icon {
+      font-size: 0.95rem;
+      width: 0.95rem;
+      height: 0.95rem;
+    }
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+  }
+
+  .page-subtitle {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .btn-cyan {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    height: 44px;
+  }
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.routes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.route-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &.inactive-card {
+    opacity: 0.65;
+  }
+
+  .rc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .rc-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .route-code-badge {
+        background: rgba(2, 132, 199, 0.15);
+        color: #0284c7;
+        font-size: 0.82rem;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(2, 132, 199, 0.3);
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .rc-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  .stations-timeline {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    padding: 12px 4px;
+    gap: 4px;
+
+    .timeline-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+
+      .step-circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0284c7, #0369a1);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+      }
+
+      .step-info {
+        display: flex;
+        flex-direction: column;
+
+        .node-name {
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          white-space: nowrap;
+        }
+
+        .node-coords {
+          font-size: 0.65rem;
+          color: var(--text-muted);
+        }
+      }
+
+      .step-connector {
+        width: 24px;
+        height: 2px;
+        background: var(--border-glass);
+        margin: 0 4px;
+      }
+    }
+  }
+
+  .rc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-glass);
+
+    .btn-fares {
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      border-color: rgba(2, 132, 199, 0.35);
+
+      mat-icon { color: #f59e0b; }
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+    }
+  }
+}
+
+body.dark-theme .route-card .rc-header .rc-title-box .route-code-badge {
+  color: #38bdf8;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.modal-box {
+  width: 90%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+  }
+
+  .modal-body {
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-bottom: 20px;
+
+    .modal-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stops-section {
+      .stops-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+
+        .btn-add-stop {
+          color: var(--color-taxi-blue-light);
+          font-size: 0.8rem;
+        }
+      }
+
+      .stops-list-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .stop-input-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .node-idx-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(2, 132, 199, 0.2);
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+          }
+
+          .stop-name-field {
+            flex: 2;
+            margin-bottom: 0;
+          }
+
+          .stop-coord-field {
+            flex: 1;
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+:host-context(body.light-theme),
+:host-context(.light-theme),
+body.light-theme,
+html.light-theme,
+[data-theme='light'] {
+  .page-title { color: #0f172a !important; }
+  .page-subtitle { color: #475569 !important; }
+
+  .route-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .rc-title-box h3,
+  .step-info .node-name {
+    color: #0f172a !important;
+  }
+
+  .meta-item span,
+  .step-info .node-coords {
+    color: #64748b !important;
+  }
+
+  .step-circle {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+  }
+
+  .route-code-badge {
+    background: rgba(2, 132, 199, 0.1) !important;
+    color: #0284c7 !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .routes-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,199 @@
+<div class="admin-route-requests-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="badge-tag">
+        <mat-icon>sync_alt</mat-icon>
+        <span>CORRIDOR TRANSFER APPROVALS</span>
+      </div>
+      <h1 class="page-title">Driver <span class="text-gradient-purple">Route Change Requests</span></h1>
+      <p class="page-subtitle">Inspect line transfer requests, verify active trip safety, and approve corridor reassignments.</p>
+    </div>
+  </div>
+
+  <!-- Filter Controls & Modern Search UI (Requirement 2 & 3) -->
+  <div class="glass-card filter-card">
+    <div class="filter-controls-row">
+      <div class="filter-pills">
+        <button class="status-pill" [class.active]="store.selectedStatus() === 'all'" (click)="setStatusFilter('all')">
+          All ({{ store.totalCount() }})
+        </button>
+        <button class="status-pill pending" [class.active]="store.selectedStatus() === 'pending'" (click)="setStatusFilter('pending')">
+          <span class="dot"></span>
+          Pending Review ({{ store.pendingCount() }})
+        </button>
+        <button class="status-pill approved" [class.active]="store.selectedStatus() === 'approved'" (click)="setStatusFilter('approved')">
+          <span class="dot"></span>
+          Approved ({{ store.approvedCount() }})
+        </button>
+        <button class="status-pill rejected" [class.active]="store.selectedStatus() === 'rejected'" (click)="setStatusFilter('rejected')">
+          <span class="dot"></span>
+          Rejected ({{ store.rejectedCount() }})
+        </button>
+      </div>
+
+      <div class="search-input-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          placeholder="Search driver, route code, phone, or reason..." 
+          [ngModel]="store.searchQuery()" 
+          (ngModelChange)="onSearchChange($event)"
+          class="search-field"
+        />
+        <button *ngIf="store.searchQuery()" mat-icon-button class="clear-search-btn" (click)="onSearchChange('')" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="store.isLoading() && store.requests().length === 0" class="loading-box glass-card">
+    <mat-icon class="spin-icon">sync</mat-icon>
+    <span>Loading authoritative route change requests from database...</span>
+  </div>
+
+  <!-- Requests List / Cards -->
+  <div class="requests-grid" *ngIf="!store.isLoading() || store.requests().length > 0">
+    <div *ngFor="let req of store.filteredRequests()" class="glass-card request-card" [class.pending-card]="req.status === 'Pending'">
+      <div class="req-top">
+        <div class="driver-info-block">
+          <div class="driver-avatar font-mono">
+            {{ req.driverName.charAt(0) }}
+          </div>
+          <div>
+            <div class="driver-name">{{ req.driverName }}</div>
+            <div class="driver-sub font-mono">{{ req.driverCode || 'Driver' }} &bull; {{ req.driverPhone }}</div>
+          </div>
+        </div>
+
+        <span class="status-badge font-mono" [ngClass]="req.status.toLowerCase()">
+          <span class="status-dot"></span>
+          {{ req.status }}
+        </span>
+      </div>
+
+      <!-- Timestamps Row (Submitted & Reviewed) -->
+      <div class="req-timestamps-row font-mono">
+        <div class="timestamp-item">
+          <mat-icon class="ts-icon">schedule</mat-icon>
+          <span>Submitted: <strong>{{ req.requestedAt | date:'MMM d, y, h:mm a' }}</strong></span>
+        </div>
+        <div class="timestamp-item" *ngIf="req.reviewedAt" [ngClass]="req.status === 'Approved' ? 'ts-approved' : 'ts-rejected'">
+          <mat-icon class="ts-icon">{{ req.status === 'Approved' ? 'check_circle' : 'cancel' }}</mat-icon>
+          <span>{{ req.status === 'Approved' ? 'Approved' : 'Rejected' }}: <strong>{{ req.reviewedAt | date:'MMM d, y, h:mm a' }}</strong></span>
+        </div>
+      </div>
+
+      <!-- Transfer Details Visual -->
+      <div class="route-transfer-box">
+        <div class="route-point current">
+          <span class="rp-label">CURRENT CORRIDOR</span>
+          <div class="rp-code font-mono">{{ req.currentRouteCode }}</div>
+          <span class="rp-name">{{ req.currentRouteName }}</span>
+        </div>
+
+        <div class="transfer-arrow-box">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+
+        <div class="route-point target">
+          <span class="rp-label">REQUESTED CORRIDOR</span>
+          <div class="rp-code font-mono text-cyan">{{ req.newRouteCode }}</div>
+          <span class="rp-name">{{ req.newRouteName }}</span>
+        </div>
+      </div>
+
+      <!-- Driver Reason -->
+      <div class="reason-box">
+        <span class="reason-label">REASON FOR TRANSFER:</span>
+        <p class="reason-text">"{{ req.reason }}"</p>
+      </div>
+
+      <!-- Active Trip Safety Check -->
+      <div *ngIf="req.hasActiveTrip" class="active-trip-warning">
+        <mat-icon>warning</mat-icon>
+        <span><strong>Active Trip In Progress:</strong> Driver has an ongoing trip. Cannot switch route until trip finishes.</span>
+      </div>
+
+      <!-- Reviewer Info if already reviewed -->
+      <div *ngIf="req.reviewedAt" class="reviewed-info">
+        <span class="font-mono">
+          Reviewed on {{ req.reviewedAt | date:'MMM d, y, h:mm a' }}
+          <ng-container *ngIf="req.reviewedByAdminName">by <strong>{{ req.reviewedByAdminName }}</strong></ng-container>
+        </span>
+        <span *ngIf="req.rejectionReason" class="rejection-note text-danger font-mono">Rejection Note: "{{ req.rejectionReason }}"</span>
+      </div>
+
+      <!-- Action Buttons for Pending Requests -->
+      <div *ngIf="req.status === 'Pending'" class="req-actions">
+        <button
+          mat-flat-button
+          class="btn-approve"
+          [disabled]="req.hasActiveTrip || store.isActionLoading()"
+          (click)="openApproveModal(req)"
+        >
+          <mat-icon>check_circle</mat-icon>
+          <span>Approve Transfer</span>
+        </button>
+        <button 
+          mat-stroked-button 
+          color="warn" 
+          class="btn-reject" 
+          [disabled]="store.isActionLoading()"
+          (click)="openRejectModal(req)"
+        >
+          <mat-icon>cancel</mat-icon>
+          <span>Reject</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="store.filteredRequests().length === 0 && !store.isLoading()" class="glass-card empty-card">
+      <mat-icon>sync_disabled</mat-icon>
+      <h3>No Route Transfer Requests</h3>
+      <p>There are no route change requests matching the search query or filter in the database.</p>
+    </div>
+  </div>
+
+  <!-- Modal: Action Dialog -->
+  <div *ngIf="activeModalRequest" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>{{ modalAction === 'approve' ? 'Approve Route Transfer' : 'Reject Route Transfer' }}</h3>
+        <button mat-icon-button (click)="activeModalRequest = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          {{ modalAction === 'approve' ? 'Confirm switching' : 'Provide a reason for rejecting' }}
+          <strong>{{ activeModalRequest.driverName }}</strong> from
+          <strong>{{ activeModalRequest.currentRouteCode }}</strong> to
+          <strong>{{ activeModalRequest.newRouteCode }}</strong>:
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Supervisor Review Notes</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="reviewNote"
+            placeholder="e.g. Route approved after capacity check or Route is at maximum minibus capacity"
+          ></textarea>
+        </mat-form-field>
+      </div>
+      <div class="modal-footer">
+        <button mat-button (click)="activeModalRequest = null">Cancel</button>
+        <button
+          mat-flat-button
+          [ngClass]="modalAction === 'approve' ? 'btn-approve-action' : 'btn-reject-action'"
+          (click)="submitReview()"
+        >
+          {{ modalAction === 'approve' ? 'Confirm Approval' : 'Confirm Rejection' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

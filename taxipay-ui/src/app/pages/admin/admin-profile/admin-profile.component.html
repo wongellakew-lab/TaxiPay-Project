@@ -1,0 +1,73 @@
+<div class="profile-page">
+  <div class="page-header">
+    <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+    <div>
+      <h1 class="page-title">Admin Profile</h1>
+      <p class="page-sub">Your account details and role information</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="loading()">
+    <mat-spinner diameter="48"></mat-spinner>
+    <span>Loading profile…</span>
+  </div>
+
+  <!-- Error -->
+  <div class="error-card glass-card" *ngIf="error()">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card glass-card" *ngIf="profile() as p">
+    <!-- Avatar -->
+    <div class="avatar-wrap">
+      <div class="avatar">
+        <mat-icon>person</mat-icon>
+      </div>
+      <div class="avatar-info">
+        <h2 class="full-name">{{ p.firstName }} {{ p.lastName }}</h2>
+        <span class="role-badge">{{ p.role }}</span>
+        <span class="status-badge" [class.active]="p.isActive" [class.inactive]="!p.isActive">
+          <span class="dot"></span>
+          {{ p.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Detail Grid -->
+    <div class="detail-grid">
+      <div class="detail-item">
+        <mat-icon>email</mat-icon>
+        <div>
+          <span class="label">Email Address</span>
+          <span class="value">{{ p.email }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <mat-icon>phone</mat-icon>
+        <div>
+          <span class="label">Phone Number</span>
+          <span class="value">{{ p.phone }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <mat-icon>badge</mat-icon>
+        <div>
+          <span class="label">Admin ID</span>
+          <span class="value font-mono">{{ p.id }}</span>
+        </div>
+      </div>
+      <div class="detail-item" *ngIf="p.lastLoginAt">
+        <mat-icon>login</mat-icon>
+        <div>
+          <span class="label">Last Login</span>
+          <span class="value">{{ p.lastLoginAt | date:'medium' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

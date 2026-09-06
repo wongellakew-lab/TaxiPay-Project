@@ -1,0 +1,179 @@
+<div class="admin-disputes-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="badge-tag">
+        <mat-icon>gavel</mat-icon>
+        <span>COMMUTER PROTECTION & ARBITRATION</span>
+      </div>
+      <h1 class="page-title">Dispute <span class="text-gradient-purple">Resolution Center</span></h1>
+      <p class="page-subtitle">Investigate passenger fare discrepancies, audit trip logs, and settle cases with authoritative Open & Close workflows.</p>
+    </div>
+  </div>
+
+  <!-- Filters & Sorting -->
+  <div class="glass-card filter-card">
+    <div class="filter-controls-row">
+      <div class="filter-pills">
+        <button class="status-pill" [class.active]="store.selectedStatus() === 'all'" (click)="setStatusFilter('all')">
+          All Disputes ({{ store.totalCount() }})
+        </button>
+        <button class="status-pill open-pill" [class.active]="store.selectedStatus() === 'open'" (click)="setStatusFilter('open')">
+          <span class="dot"></span>
+          Open Cases ({{ store.openCount() }})
+        </button>
+        <button class="status-pill closed-pill" [class.active]="store.selectedStatus() === 'closed'" (click)="setStatusFilter('closed')">
+          <span class="dot"></span>
+          Closed Cases ({{ store.closedCount() }})
+        </button>
+      </div>
+
+      <div class="search-and-sort-box">
+        <div class="search-input-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            placeholder="Search by passenger, driver, corridor..." 
+            [ngModel]="store.searchQuery()" 
+            (ngModelChange)="onSearchChange($event)"
+            class="search-field"
+          />
+        </div>
+
+        <div class="sort-pills">
+          <span class="sort-label text-muted text-xs">Sort:</span>
+          <button class="sort-btn" (click)="toggleSort('date')">
+            <span>Date</span>
+            <mat-icon class="sort-icon">{{ getSortIcon('date') }}</mat-icon>
+          </button>
+          <button class="sort-btn" (click)="toggleSort('passenger')">
+            <span>Passenger</span>
+            <mat-icon class="sort-icon">{{ getSortIcon('passenger') }}</mat-icon>
+          </button>
+          <button class="sort-btn" (click)="toggleSort('type')">
+            <span>Type</span>
+            <mat-icon class="sort-icon">{{ getSortIcon('type') }}</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="store.isLoading() && store.disputes().length === 0" class="loading-box glass-card">
+    <mat-icon class="spin-icon">sync</mat-icon>
+    <span>Loading authoritative dispute records from database...</span>
+  </div>
+
+  <!-- Disputes Grid -->
+  <div class="disputes-grid" *ngIf="!store.isLoading() || store.disputes().length > 0">
+    <div *ngFor="let disp of store.filteredDisputes()" class="glass-card dispute-card" [class.open-card]="disp.status === 'Open'">
+      <div class="disp-header">
+        <div class="disp-id-box">
+          <span class="type-tag font-mono">{{ disp.disputeType }}</span>
+          <span class="trip-number font-mono">{{ disp.tripNumber }}</span>
+        </div>
+        <span class="status-badge font-mono" [ngClass]="disp.status.toLowerCase()">
+          {{ disp.status === 'Open' ? 'OPEN' : 'CLOSED' }}
+        </span>
+      </div>
+
+      <!-- Trip Evidence Summary Box -->
+      <div class="evidence-box">
+        <div class="evidence-col">
+          <span class="ev-label">PASSENGER</span>
+          <span class="ev-val">{{ disp.passengerName }}</span>
+          <span class="ev-sub font-mono">{{ disp.passengerPhone }}</span>
+        </div>
+        <div class="evidence-col">
+          <span class="ev-label">DRIVER</span>
+          <span class="ev-val">{{ disp.driverName }}</span>
+          <span class="ev-sub font-mono">{{ disp.driverPhone }}</span>
+        </div>
+        <div class="evidence-col">
+          <span class="ev-label">CORRIDOR & FARE</span>
+          <span class="ev-val font-mono">{{ disp.routeCode }}</span>
+          <span class="ev-sub font-mono text-gold font-bold">{{ disp.farePaid }} ETB Deducted</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="desc-box">
+        <span class="desc-label">PASSENGER COMPLAINT:</span>
+        <p class="desc-text">"{{ disp.description }}"</p>
+      </div>
+
+      <!-- Resolution Info if closed -->
+      <div *ngIf="disp.status === 'Closed' || disp.resolvedAt" class="resolution-box">
+        <span class="res-time font-mono">
+          Closed on {{ disp.resolvedAt | date:'medium' }} {{ disp.resolvedByAdminName ? 'by ' + disp.resolvedByAdminName : '' }}
+        </span>
+        <p class="res-notes font-mono">Resolution: {{ disp.resolutionNotes || 'Arbitrated and closed.' }}</p>
+      </div>
+
+      <!-- Actions: ONLY Open and Close -->
+      <div class="disp-footer">
+        <button *ngIf="disp.status === 'Open'" mat-flat-button class="btn-close-dispute" (click)="openCloseModal(disp)">
+          <mat-icon>check_circle</mat-icon>
+          <span>Close Dispute</span>
+        </button>
+
+        <button *ngIf="disp.status === 'Closed'" mat-stroked-button class="btn-reopen-dispute" (click)="reopenDispute(disp)">
+          <mat-icon>replay</mat-icon>
+          <span>Reopen Dispute</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="store.filteredDisputes().length === 0 && !store.isLoading()" class="glass-card empty-card">
+      <mat-icon>verified</mat-icon>
+      <h3>No Disputes Found</h3>
+      <p>There are no dispute records matching the active filter in the database.</p>
+    </div>
+  </div>
+
+  <!-- Close Dispute Dialog Modal -->
+  <div *ngIf="activeDispute" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <mat-icon class="modal-icon">gavel</mat-icon>
+          <h3>Close & Settle Dispute ({{ activeDispute.tripNumber }})</h3>
+        </div>
+        <button mat-icon-button (click)="activeDispute = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-trip-summary">
+          <div><strong>Passenger:</strong> {{ activeDispute.passengerName }} ({{ activeDispute.passengerPhone }})</div>
+          <div><strong>Driver:</strong> {{ activeDispute.driverName }} ({{ activeDispute.driverPhone }})</div>
+          <div><strong>Corridor:</strong> {{ activeDispute.routeCode }} &bull; <strong>Deducted:</strong> {{ activeDispute.farePaid }} ETB</div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Administrative Resolution Notes</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="resolutionNotes"
+            placeholder="e.g. Audit completed. Fare discrepancy reconciled."
+          ></textarea>
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="issueRefund" color="primary" class="refund-checkbox">
+          <strong>Issue Automatic Wallet Refund</strong> (Credit {{ activeDispute.farePaid }} ETB to {{ activeDispute.passengerName }}'s wallet)
+        </mat-checkbox>
+      </div>
+
+      <div class="modal-footer">
+        <button mat-button (click)="activeDispute = null">Cancel</button>
+        <button mat-flat-button class="btn-confirm-close" (click)="submitCloseDispute()">
+          <mat-icon>check_circle</mat-icon>
+          <span>Confirm & Close Dispute</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
