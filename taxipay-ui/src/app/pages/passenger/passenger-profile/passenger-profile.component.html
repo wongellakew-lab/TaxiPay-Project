@@ -1,0 +1,391 @@
+<div class="passenger-profile-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>verified_user</mat-icon>
+      <span>OFFICIAL COMMUTER ACCOUNT</span>
+    </div>
+    <h1 class="page-title">Passenger <span class="text-gradient-cyan">Profile & Wallet</span></h1>
+    <p class="page-subtitle">
+      Manage your verified transit identity, update personal information, and maintain your contactless digital wallet.
+    </p>
+  </div>
+
+  <!-- Main Layout Grid -->
+  <div class="profile-grid">
+    <!-- Left: Passenger Profile Section -->
+    <div class="profile-main-column">
+      <!-- Profile Card -->
+      <mat-card class="glass-card profile-card">
+        <!-- Card Top Header -->
+        <div class="card-header-bar">
+          <div class="header-left-group">
+            <div class="header-icon-box">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="header-titles">
+              <h2 class="section-heading">Personal Information</h2>
+              <span class="section-subheading">Synchronized with TaxiPay commuter registry</span>
+            </div>
+          </div>
+
+          <!-- Header Action (Edit or Cancel) -->
+          <div class="header-actions">
+            <button
+              *ngIf="!isEditing()"
+              mat-stroked-button
+              class="btn-edit-profile"
+              (click)="startEditing()"
+              [disabled]="isLoading()"
+            >
+              <mat-icon>edit</mat-icon>
+              <span>Edit Profile</span>
+            </button>
+
+            <button
+              *ngIf="isEditing()"
+              mat-button
+              class="btn-cancel-edit"
+              (click)="cancelEditing()"
+              [disabled]="isSavingProfile()"
+            >
+              <mat-icon>close</mat-icon>
+              <span>Cancel</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading Spinner State -->
+        <div *ngIf="isLoading()" class="loading-state">
+          <mat-spinner diameter="40" class="state-spinner"></mat-spinner>
+          <span class="loading-text">Loading profile from database...</span>
+        </div>
+
+        <!-- Loaded Profile Content -->
+        <div *ngIf="!isLoading() && profile()" class="card-body-content">
+          <!-- VIEW MODE -->
+          <div *ngIf="!isEditing()" class="view-mode-wrapper">
+            <!-- Hero Identity Banner -->
+            <div class="identity-hero-card">
+              <div class="avatar-ring">
+                <div class="avatar-circle">
+                  <span>{{ getInitials() }}</span>
+                </div>
+              </div>
+
+              <div class="identity-info-block">
+                <div class="name-status-row">
+                  <h3 class="profile-display-name">{{ getFullName() }}</h3>
+                  <span class="commuter-status-pill">
+                    <span class="pulse-indicator"></span>
+                    <span>Active Commuter</span>
+                  </span>
+                </div>
+                <div class="identity-meta-row font-mono">
+                  <span class="meta-item">
+                    <mat-icon>phone_iphone</mat-icon>
+                    {{ profile()?.phone }}
+                  </span>
+                  <span class="meta-separator">•</span>
+                  <span class="meta-item">
+                    <mat-icon>schedule</mat-icon>
+                    Member since {{ (profile()?.createdAt | date:'MMM yyyy') || 'Recent' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Database Metrics Row -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon-box gold-theme">
+                  <mat-icon>star</mat-icon>
+                </div>
+                <div class="metric-data">
+                  <span class="metric-label">COMMUTER RATING</span>
+                  <div class="metric-value-row">
+                    <strong class="font-mono">{{ (profile()?.rating ?? 0) | number:'1.1-1' }}</strong>
+                    <small class="metric-unit">/ 5.0</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-box blue-theme">
+                  <mat-icon>directions_bus</mat-icon>
+                </div>
+                <div class="metric-data">
+                  <span class="metric-label">TOTAL RIDES TAKEN</span>
+                  <div class="metric-value-row">
+                    <strong class="font-mono">{{ profile()?.totalTrips ?? 0 }}</strong>
+                    <small class="metric-unit">Completed</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Information List -->
+            <div class="details-section">
+              <span class="details-section-title">ACCOUNT DETAILS</span>
+
+              <div class="details-list">
+                <!-- Full Name -->
+                <div class="detail-item">
+                  <div class="detail-icon-wrap">
+                    <mat-icon>badge</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Full Name</span>
+                    <strong class="detail-value">{{ getFullName() }}</strong>
+                  </div>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="detail-item">
+                  <div class="detail-icon-wrap">
+                    <mat-icon>phone</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Mobile Phone Number</span>
+                    <strong class="detail-value font-mono">{{ profile()?.phone }}</strong>
+                  </div>
+                </div>
+
+                <!-- Verification Status -->
+                <div class="detail-item">
+                  <div class="detail-icon-wrap">
+                    <mat-icon>verified</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Verification Status</span>
+                    <div class="verification-badge">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>Database Verified Identity</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Account Created -->
+                <div class="detail-item">
+                  <div class="detail-icon-wrap">
+                    <mat-icon>calendar_today</mat-icon>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Account Created</span>
+                    <strong class="detail-value font-mono">{{ (profile()?.createdAt | date:'mediumDate') || 'Active Account' }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDIT MODE FORM -->
+          <form *ngIf="isEditing()" (ngSubmit)="saveProfile()" class="edit-form-wrapper" novalidate>
+            <div class="edit-guidance-banner">
+              <mat-icon>info</mat-icon>
+              <div class="banner-text">
+                <strong>Edit Commuter Profile</strong>
+                <p>Update your personal name and phone number. Changes are saved directly to the database.</p>
+              </div>
+            </div>
+
+            <!-- General Save Error Banner -->
+            <div *ngIf="profileSaveError" class="field-error-banner">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ profileSaveError }}</span>
+            </div>
+
+            <div class="form-fields-container">
+              <!-- Name Row: 2 Columns -->
+              <div class="form-row-2col">
+                <!-- First Name -->
+                <div class="input-field-block">
+                  <mat-form-field appearance="outline" class="form-field-custom" [class.field-error-state]="!!firstNameError">
+                    <mat-label>First Name</mat-label>
+                    <input
+                      matInput
+                      [(ngModel)]="editFirstName"
+                      name="editFirstName"
+                      placeholder="e.g. Dawit"
+                      autocomplete="given-name"
+                    />
+                    <mat-icon matPrefix>person</mat-icon>
+                  </mat-form-field>
+                  <div *ngIf="firstNameError" class="inline-field-error">
+                    <mat-icon>warning</mat-icon>
+                    <span>{{ firstNameError }}</span>
+                  </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="input-field-block">
+                  <mat-form-field appearance="outline" class="form-field-custom" [class.field-error-state]="!!lastNameError">
+                    <mat-label>Last Name</mat-label>
+                    <input
+                      matInput
+                      [(ngModel)]="editLastName"
+                      name="editLastName"
+                      placeholder="e.g. Haile"
+                      autocomplete="family-name"
+                    />
+                    <mat-icon matPrefix>person_outline</mat-icon>
+                  </mat-form-field>
+                  <div *ngIf="lastNameError" class="inline-field-error">
+                    <mat-icon>warning</mat-icon>
+                    <span>{{ lastNameError }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="input-field-block">
+                <mat-form-field appearance="outline" class="form-field-custom full-width" [class.field-error-state]="!!phoneError">
+                  <mat-label>Phone Number</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="editPhone"
+                    name="editPhone"
+                    placeholder="e.g. 0911000000"
+                    autocomplete="tel"
+                    class="font-mono"
+                  />
+                  <mat-icon matPrefix>phone</mat-icon>
+                  <mat-hint>Ethiopian format: 09XXXXXXXX or 07XXXXXXXX</mat-hint>
+                </mat-form-field>
+                <div *ngIf="phoneError" class="inline-field-error">
+                  <mat-icon>warning</mat-icon>
+                  <span>{{ phoneError }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Action Buttons -->
+            <div class="form-actions-row">
+              <button
+                type="button"
+                mat-stroked-button
+                class="btn-action-cancel"
+                (click)="cancelEditing()"
+                [disabled]="isSavingProfile()"
+              >
+                <mat-icon>close</mat-icon>
+                <span>Cancel</span>
+              </button>
+
+              <button
+                type="submit"
+                mat-flat-button
+                class="btn-action-save btn-taxi-blue"
+                [disabled]="isSavingProfile()"
+              >
+                <mat-spinner *ngIf="isSavingProfile()" diameter="18" class="btn-spinner"></mat-spinner>
+                <mat-icon *ngIf="!isSavingProfile()">save</mat-icon>
+                <span>{{ isSavingProfile() ? 'Saving Changes...' : 'Save Profile' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Right: Digital Wallet & Top-Up Section -->
+    <div class="wallet-main-column">
+      <mat-card class="glass-card wallet-card">
+        <!-- Card Top Header -->
+        <div class="card-header-bar">
+          <div class="header-left-group">
+            <div class="header-icon-box wallet-icon-theme">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+            <div class="header-titles">
+              <h2 class="section-heading">Transit Wallet</h2>
+              <span class="section-subheading">Contactless digital minibus fare balance</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body-content">
+          <!-- Wallet Balance Box -->
+          <div class="wallet-hero-box">
+            <div class="wallet-badge-top font-mono">
+              <mat-icon>payments</mat-icon>
+              <span>AVAILABLE BALANCE</span>
+            </div>
+
+            <div class="balance-number-row font-mono">
+              <span class="balance-currency">ETB</span>
+              <span class="balance-amount">{{ passengerService.walletBalance() | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="wallet-sync-status font-mono">
+              <mat-icon class="sync-icon">sync</mat-icon>
+              <span>Synchronized with Database</span>
+            </div>
+          </div>
+
+          <!-- Top-Up Card Container -->
+          <div class="topup-action-card">
+            <div class="topup-header">
+              <span class="topup-title">Add Funds / Top-Up</span>
+              <span class="topup-sub">Instant balance top-up via Telebirr</span>
+            </div>
+
+            <!-- Preset Amount Chips Grid -->
+            <div class="preset-chips-grid">
+              <button
+                *ngFor="let preset of presetAmounts"
+                type="button"
+                class="preset-chip font-mono"
+                [class.active]="topUpAmount === preset"
+                (click)="selectPreset(preset)"
+              >
+                +{{ preset }} ETB
+              </button>
+            </div>
+
+            <!-- Custom Amount Input Form -->
+            <div class="topup-input-row">
+              <mat-form-field appearance="outline" class="form-field-custom topup-form-field">
+                <mat-label>Amount (ETB)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [(ngModel)]="topUpAmount"
+                  min="10"
+                  max="10000"
+                  step="10"
+                  placeholder="Amount in ETB"
+                  class="font-mono"
+                />
+                <mat-icon matPrefix>attach_money</mat-icon>
+              </mat-form-field>
+
+              <button
+                mat-flat-button
+                class="btn-topup-action btn-cyber"
+                (click)="submitTopUp()"
+                [disabled]="walletStore.isTopUpLoading() || !isValidTopUpAmount()"
+              >
+                <mat-spinner *ngIf="walletStore.isTopUpLoading()" diameter="18" class="btn-spinner"></mat-spinner>
+                <mat-icon *ngIf="!walletStore.isTopUpLoading()">add_circle</mat-icon>
+                <span>{{ walletStore.isTopUpLoading() ? 'Topping Up...' : 'Top Up Now' }}</span>
+              </button>
+            </div>
+
+            <!-- Wallet Features / Trust Badges -->
+            <div class="wallet-features-box">
+              <div class="feature-bullet">
+                <mat-icon class="bullet-icon">bolt</mat-icon>
+                <span>Instant balance update across Pay Ride and sidebar.</span>
+              </div>
+              <div class="feature-bullet">
+                <mat-icon class="bullet-icon">shield</mat-icon>
+                <span>Encrypted ledger transactions verified in real time.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

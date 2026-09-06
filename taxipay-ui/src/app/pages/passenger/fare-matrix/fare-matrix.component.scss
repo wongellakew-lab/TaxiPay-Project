@@ -1,0 +1,200 @@
+.fare-matrix-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.loading-bar {
+  border-radius: 4px;
+}
+
+.page-header {
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--color-taxi-yellow);
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    margin-bottom: 8px;
+
+    mat-icon { font-size: 0.95rem; width: 0.95rem; height: 0.95rem; }
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+  }
+
+  .page-subtitle {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+}
+
+.picker-card, .timeline-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .icon-accent {
+    color: var(--color-taxi-blue-light);
+    font-size: 1.8rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-top: 2px;
+  }
+
+  h3 { margin: 0 0 4px 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
+  p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+}
+
+.custom-select { width: 100%; margin-bottom: 4px; }
+
+.stop-pickers-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  .stop-field { width: 100%; }
+}
+
+.node-id-pill {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.2);
+  color: #0284c7;
+  font-weight: 800;
+  font-size: 0.72rem;
+  margin-right: 8px;
+}
+
+.fare-result-box {
+  background: var(--bg-glass-subtle);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+
+  .fr-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .fr-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .fr-dist {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+  }
+
+  .fr-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+
+    .fr-amount {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .fr-curr {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--color-taxi-yellow);
+    }
+  }
+
+  .fr-note {
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+}
+
+.action-row {
+  display: flex;
+  justify-content: flex-end;
+
+  .btn-pay-now {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    height: 46px;
+    padding: 0 24px;
+  }
+}
+
+:host-context(body.light-theme),
+:host-context(.light-theme),
+body.light-theme,
+html.light-theme,
+[data-theme='light'] {
+  .page-title { color: #0f172a !important; }
+  .page-subtitle { color: #475569 !important; }
+
+  .picker-card,
+  .timeline-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .card-top h3 { color: #0f172a !important; }
+  .card-top p { color: #64748b !important; }
+
+  .fare-result-box {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+
+    .fr-header .fr-label { color: #64748b !important; }
+    .fr-header .fr-dist { color: #0f172a !important; }
+    .fr-price-row .fr-amount { color: #0f172a !important; }
+    .fr-price-row .fr-curr { color: #d97706 !important; }
+    .fr-note { color: #64748b !important; }
+  }
+}
+
+@media (max-width: 992px) {
+  .matrix-grid { grid-template-columns: 1fr; }
+  .stop-pickers-row { grid-template-columns: 1fr; }
+}
+

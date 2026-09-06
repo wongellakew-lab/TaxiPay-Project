@@ -1,0 +1,108 @@
+<div class="fare-matrix-page">
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>map</mat-icon>
+      <span>OFFICIAL TRANSIT FARES</span>
+    </div>
+    <h1 class="page-title">Route & Station <span class="text-gradient">Fare Calculator</span></h1>
+    <p class="page-subtitle">
+      Explore city minibus lines, view transit stations, and calculate regulated pricing matrices.
+    </p>
+  </div>
+
+  <!-- Loading Bar -->
+  <mat-progress-bar *ngIf="routeService.isLoading()" mode="indeterminate" class="loading-bar"></mat-progress-bar>
+
+  <div class="matrix-grid">
+    <!-- Left: Interactive Route & Stop Picker -->
+    <div class="glass-card picker-card">
+      <div class="card-top">
+        <mat-icon class="icon-accent">alt_route</mat-icon>
+        <div>
+          <h3>Choose Corridor Route</h3>
+          <p>Select your departure and destination stations to compute the official regulated fare.</p>
+        </div>
+      </div>
+
+      <!-- Corridor Selector -->
+      <mat-form-field appearance="outline" class="full-width custom-select">
+        <mat-label>Corridor Transit Line</mat-label>
+        <mat-select [ngModel]="activeRouteCode" (selectionChange)="changeRoute($event.value)" panelClass="route-select-panel">
+          <mat-option *ngFor="let r of routes()" [value]="r.routeCode">
+            <span class="route-option-label">
+              <strong>{{ r.routeCode }}</strong> &bull; {{ r.name }} ({{ r.nodes.length }} Stops)
+            </span>
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>directions_bus</mat-icon>
+      </mat-form-field>
+
+      <!-- Boarding & Alighting Dropdowns -->
+      <div class="stop-pickers-row" *ngIf="activeRoute">
+        <mat-form-field appearance="outline" class="stop-field">
+          <mat-label>Boarding Station (From)</mat-label>
+          <mat-select [ngModel]="selectedFrom" (selectionChange)="onBoardingChange($event.value)">
+            <mat-option *ngFor="let n of activeRoute.nodes" [value]="n.id">
+              <span class="node-id-pill font-mono">{{ n.id }}</span>
+              <span>{{ n.name }}</span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>trip_origin</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="stop-field">
+          <mat-label>Destination (To)</mat-label>
+          <mat-select [ngModel]="selectedTo" (selectionChange)="onDestinationChange($event.value)">
+            <mat-option *ngFor="let n of activeRoute.nodes" [value]="n.id">
+              <span class="node-id-pill font-mono">{{ n.id }}</span>
+              <span>{{ n.name }}</span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Computed Fare Box -->
+      <div class="fare-result-box">
+        <div class="fr-header">
+          <span class="fr-label">REGULATED TRANSIT TARIFF</span>
+          <span class="fr-dist font-mono">{{ getNodeName(selectedFrom) }} &rarr; {{ getNodeName(selectedTo) }}</span>
+        </div>
+        <div class="fr-price-row">
+          <span class="fr-amount font-mono text-gradient">{{ computedFare() | number:'1.2-2' }}</span>
+          <span class="fr-curr font-mono">ETB</span>
+        </div>
+        <p class="fr-note">Fixed municipal tariff approved by the Transport Authority.</p>
+      </div>
+
+      <div class="action-row">
+        <a mat-flat-button class="btn-pay-now" [routerLink]="['/passenger/pay']">
+          <mat-icon>payments</mat-icon>
+          <span>Pay Ride Now</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: Interactive Timeline Visualizer -->
+    <div class="glass-card timeline-card" *ngIf="activeRoute">
+      <div class="card-top">
+        <mat-icon class="icon-accent">timeline</mat-icon>
+        <div>
+          <h3>Corridor Station Topology</h3>
+          <p>Interactive sequential station nodes for {{ activeRoute.name }}. Click stops to adjust route.</p>
+        </div>
+      </div>
+
+      <app-route-timeline
+        [routeName]="activeRoute.name"
+        [routeCode]="activeRoute.routeCode"
+        [nodes]="activeRoute.nodes"
+        [selectedFrom]="selectedFrom"
+        [selectedTo]="selectedTo"
+        [isInteractive]="true"
+        (fromSelected)="onTimelineFromSelected($event)"
+        (toSelected)="onTimelineToSelected($event)"
+      ></app-route-timeline>
+    </div>
+  </div>
+</div>

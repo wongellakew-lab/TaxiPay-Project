@@ -1,0 +1,414 @@
+<div class="pay-trip-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>local_taxi</mat-icon>
+      <span>ETHIOPIAN BLUE MINIBUS FARE PAYMENT</span>
+    </div>
+    <h1 class="page-title">Pay for Your <span class="text-gradient-blue">Minibus Ride</span></h1>
+    <p class="page-subtitle">
+      Search the driver code on the minibus dashboard, verify the active travel direction, and select your boarding and drop-off stations.
+    </p>
+  </div>
+
+  <div class="pay-layout-grid">
+    <!-- Left: Form Steps / Controls -->
+    <div class="form-column">
+      <!-- Step 1: Driver Search & Verification -->
+      <div class="glass-card pay-step-card">
+        <div class="step-header">
+          <span class="step-num font-mono">01</span>
+          <div class="step-title-group">
+            <h3>Enter Driver Code</h3>
+            <p>Located on the blue taxi windshield, dashboard sticker, or driver ID badge.</p>
+          </div>
+        </div>
+
+        <div class="driver-input-row">
+          <div class="driver-field-container">
+            <mat-form-field appearance="outline" class="driver-code-field">
+              <mat-label>Driver Code (e.g. BM-XXX)</mat-label>
+              <input
+                matInput
+                [(ngModel)]="driverCodeInput"
+                [matAutocomplete]="driverAuto"
+                (input)="onDriverCodeInput()"
+                (keyup.enter)="lookupDriver()"
+                maxlength="12"
+                class="font-mono driver-text-input"
+                autocomplete="off"
+              />
+              <mat-icon matPrefix class="field-prefix-icon">tag</mat-icon>
+
+              <mat-autocomplete
+                #driverAuto="matAutocomplete"
+                (optionSelected)="onDriverOptionSelected($event)"
+                panelClass="driver-autocomplete-panel"
+              >
+                <mat-option *ngIf="isSearchingDrivers()" disabled class="searching-option">
+                  <mat-spinner diameter="16"></mat-spinner>
+                  <span>Searching database drivers...</span>
+                </mat-option>
+
+                <mat-option
+                  *ngFor="let d of driverSuggestions()"
+                  [value]="d.driverId"
+                  class="driver-option"
+                >
+                  <div class="driver-option-item">
+                    <div class="doi-code font-mono">
+                      <mat-icon class="option-car-icon">directions_bus</mat-icon>
+                      <strong>{{ d.driverId }}</strong>
+                    </div>
+                    <div class="doi-details">
+                      <span class="doi-name">{{ d.fullName }}</span>
+                      <span class="doi-route">{{ d.routeName }} ({{ d.routeCode }})</span>
+                    </div>
+                    <span class="badge badge-cyan font-mono" *ngIf="d.isActive">Active</span>
+                  </div>
+                </mat-option>
+
+                <mat-option
+                  *ngIf="!isSearchingDrivers() && driverCodeInput.trim() && driverSuggestions().length === 0"
+                  disabled
+                  class="no-match-option"
+                >
+                  <div class="no-match-content">
+                    <mat-icon>search_off</mat-icon>
+                    <span>No matching drivers found in database.</span>
+                  </div>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Explicit Red Validation Error Message -->
+            <div class="field-error-text" *ngIf="driverError()">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ driverError() }}</span>
+            </div>
+          </div>
+
+          <button
+            mat-flat-button
+            class="btn-taxi-blue search-btn"
+            (click)="lookupDriver()"
+            [disabled]="isLoadingDriver() || !driverCodeInput.trim()"
+          >
+            <mat-spinner *ngIf="isLoadingDriver()" diameter="18" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!isLoadingDriver()">search</mat-icon>
+            <span>Find Driver</span>
+          </button>
+        </div>
+
+        <!-- Verified Driver Profile Banner -->
+        <div *ngIf="driverInfo()" class="verified-driver-banner glass-panel">
+          <div class="taxi-vehicle-badge">
+            <mat-icon class="taxi-icon">directions_bus</mat-icon>
+          </div>
+
+          <div class="driver-profile-info">
+            <div class="driver-name-row">
+              <span class="d-name">{{ driverInfo()?.fullName }}</span>
+              <span class="badge badge-cyan font-mono">Driver #{{ driverInfo()?.driverId }}</span>
+              <span class="badge badge-emerald" *ngIf="driverInfo()?.hasActiveTrip">Trip Active</span>
+              <span class="badge badge-amber" *ngIf="!driverInfo()?.hasActiveTrip">No Active Trip</span>
+            </div>
+            <div class="driver-meta-row">
+              <span class="d-route">Route: <strong>{{ driverInfo()?.routeName }} ({{ driverInfo()?.routeCode }})</strong></span>
+              <span class="d-rating font-mono">{{ (driverInfo()?.rating ?? 0) | number:'1.1-1' }} ★</span>
+            </div>
+            <div class="driver-direction-row text-xs font-mono text-cyan" *ngIf="driverInfo()?.activeTripDirectionDisplay">
+              <span>Active Direction: <strong>{{ driverInfo()?.activeTripDirectionDisplay }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Active Trip Warning -->
+        <div *ngIf="driverInfo() && !driverInfo()?.hasActiveTrip" class="no-active-trip-alert">
+          <mat-icon>warning</mat-icon>
+          <span>Driver does not currently have an active trip. Please ask the driver to start their trip before paying.</span>
+        </div>
+      </div>
+
+      <!-- Empty State when No Driver Code Is Entered -->
+      <div *ngIf="!driverInfo()" class="glass-card empty-state-card">
+        <div class="empty-hero">
+          <div class="empty-icon-box">
+            <mat-icon>directions_bus</mat-icon>
+          </div>
+          <div class="empty-text-group">
+            <h3>Enter Driver Code</h3>
+            <p>Enter a driver's code above to begin your ride fare calculation.</p>
+          </div>
+        </div>
+
+        <div class="commuter-guide-grid">
+          <div class="guide-card">
+            <div class="guide-step-badge">1</div>
+            <div class="guide-info">
+              <h4>Find Taxi Code</h4>
+              <p>Check the windshield sticker, dashboard label, or driver badge (e.g. <code>BM-XXX</code>).</p>
+            </div>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-step-badge">2</div>
+            <div class="guide-info">
+              <h4>Select Stations</h4>
+              <p>Drag the interactive boarding and drop-off station pins along the taxi's active corridor.</p>
+            </div>
+          </div>
+
+          <div class="guide-card">
+            <div class="guide-step-badge">3</div>
+            <div class="guide-info">
+              <h4>Instant 1-Tap Pay</h4>
+              <p>Pay cashless via Telebirr or TaxiPay Wallet. You're added to the digital trip manifest immediately.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Direction & Route Stations Selector (Draggable Timeline) -->
+      <div *ngIf="driverInfo()" class="glass-card pay-step-card">
+        <div class="step-header">
+          <span class="step-num font-mono">02</span>
+          <div class="step-title-group">
+            <h3>Active Travel Direction & Stations</h3>
+            <p>Select or drag your boarding and drop-off stations along the minibus corridor.</p>
+          </div>
+        </div>
+
+        <!-- Direction Banner -->
+        <div class="active-direction-notice font-mono">
+          <div class="adn-tag">
+            <mat-icon>navigation</mat-icon>
+            <span>DRIVER'S CURRENT TRIP DIRECTION:</span>
+          </div>
+          <div class="adn-text">{{ activeDirectionDisplay }}</div>
+        </div>
+
+        <!-- Interactive Timeline with Draggable Markers -->
+        <app-route-timeline
+          [routeName]="driverInfo()!.routeName"
+          [routeCode]="driverInfo()!.routeCode"
+          [nodes]="orderedNodes"
+          [selectedFrom]="selectedFromNode"
+          [selectedTo]="selectedToNode"
+          [isInteractive]="true"
+          (fromSelected)="onTimelineFromSelected($event)"
+          (toSelected)="onTimelineToSelected($event)"
+        ></app-route-timeline>
+
+        <!-- Dropdowns Synchronized with Draggable Markers -->
+        <div class="stop-selectors-grid">
+          <div class="selector-field-wrapper">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>1. Boarding Station (Origin)</mat-label>
+              <mat-select [(ngModel)]="selectedFromNode" (selectionChange)="onBoardingNodeSelected($event.value)">
+                <mat-option *ngFor="let n of boardingNodeOptions" [value]="n.id">
+                  <strong>Stop {{ n.id }}:</strong> {{ n.name }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>trip_origin</mat-icon>
+            </mat-form-field>
+            <div class="field-error-text" *ngIf="boardingError()">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ boardingError() }}</span>
+            </div>
+          </div>
+
+          <div class="selector-field-wrapper">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>2. Alight Station (Drop-off)</mat-label>
+              <mat-select [(ngModel)]="selectedToNode" (selectionChange)="onAlightNodeSelected($event.value)">
+                <mat-option *ngFor="let n of alightNodeOptions" [value]="n.id">
+                  <strong>Stop {{ n.id }}:</strong> {{ n.name }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>location_on</mat-icon>
+            </mat-form-field>
+            <div class="field-error-text" *ngIf="alightError()">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ alightError() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="direction-hint-note font-mono">
+          <mat-icon>info</mat-icon>
+          <span>Drag the markers above or select stations. Alight station is strictly ahead of boarding station.</span>
+        </div>
+      </div>
+
+      <!-- Step 3: Payment Method -->
+      <div *ngIf="driverInfo()" class="glass-card pay-step-card">
+        <div class="step-header">
+          <span class="step-num font-mono">03</span>
+          <div class="step-title-group">
+            <h3>Choose Payment Method</h3>
+            <p>Pay with Telebirr, TaxiPay Wallet, CBE Birr, or Cash to driver.</p>
+          </div>
+        </div>
+
+        <div class="payment-methods-grid">
+          <div
+            *ngFor="let method of paymentOptions"
+            class="method-card"
+            [class.active]="selectedPaymentMethod === method.id"
+            (click)="onPaymentMethodSelected(method.id)"
+          >
+            <div class="method-icon-circle" [style.color]="method.color">
+              <mat-icon>{{ method.icon }}</mat-icon>
+            </div>
+            <div class="method-info">
+              <span class="m-name">{{ method.name }}</span>
+              <small class="m-sub">{{ method.sub }}</small>
+            </div>
+            <div class="method-radio">
+              <div class="radio-inner" *ngIf="selectedPaymentMethod === method.id"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-error-text" *ngIf="paymentError()">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ paymentError() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Persistent Sticky E-Ticket Receipt -->
+    <div class="checkout-column" *ngIf="driverInfo()">
+      <div class="glass-card modern-receipt-card sticky-sidebar" [class.is-paid]="!!completedReceipt()">
+        <div class="receipt-header">
+          <div class="rh-top">
+            <mat-icon class="receipt-star-icon">confirmation_number</mat-icon>
+            <span class="ticket-type-badge font-mono">MINIBUS E-TICKET</span>
+          </div>
+          <h3 class="receipt-title">{{ completedReceipt() ? 'Official Transit Receipt' : 'Trip Fare Summary' }}</h3>
+          <p class="receipt-subtitle font-mono">{{ completedReceipt() ? 'PAYMENT CONFIRMED' : 'OFFICIAL TRANSIT RECEIPT' }}</p>
+        </div>
+
+        <!-- Prominent PAID Status Banner (Shown ONLY after backend confirms payment) -->
+        <div class="receipt-paid-banner" *ngIf="completedReceipt()">
+          <div class="rpb-badge">
+            <mat-icon class="rpb-icon">check_circle</mat-icon>
+            <span class="rpb-text">PAID</span>
+          </div>
+          <span class="rpb-code font-mono">{{ completedReceipt()?.receiptNumber }}</span>
+        </div>
+
+        <div class="receipt-body">
+          <!-- Route & Driver Row -->
+          <div class="ticket-section">
+            <div class="ticket-row">
+              <span class="t-label">Corridor Route</span>
+              <span class="t-val font-mono">{{ completedReceipt()?.routeName || driverInfo()?.routeName }}</span>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Driver & Rating</span>
+              <span class="t-val font-mono text-cyan">
+                {{ completedReceipt()?.driverName || driverInfo()?.fullName }} ({{ (driverInfo()?.rating ?? 0) | number:'1.1-1' }} ★)
+              </span>
+            </div>
+          </div>
+
+          <!-- Station Path Journey Row -->
+          <div class="journey-stops-card">
+            <div class="stop-entry from">
+              <div class="stop-icon-dot amber"></div>
+              <div class="stop-info">
+                <span class="stop-role">BOARDING</span>
+                <strong class="stop-name">{{ getNodeName(selectedFromNode) }} ({{ selectedFromNode }})</strong>
+              </div>
+            </div>
+
+            <div class="journey-connector-line"></div>
+
+            <div class="stop-entry to">
+              <div class="stop-icon-dot cyan"></div>
+              <div class="stop-info">
+                <span class="stop-role">ALIGHTING</span>
+                <strong class="stop-name">{{ getNodeName(selectedToNode) }} ({{ selectedToNode }})</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method & Wallet -->
+          <div class="ticket-section">
+            <div class="ticket-row">
+              <span class="t-label">Payment Channel</span>
+              <span class="t-val font-mono">{{ completedReceipt()?.paymentMethod || getMethodName(selectedPaymentMethod) }}</span>
+            </div>
+
+            <div class="ticket-row" *ngIf="!completedReceipt() && selectedPaymentMethod === PaymentMethod.Wallet">
+              <span class="t-label">Wallet Balance</span>
+              <strong class="text-gold font-mono">{{ passengerService.walletBalance() | number:'1.2-2' }} ETB</strong>
+            </div>
+
+            <div class="ticket-row" *ngIf="completedReceipt()?.paidAt">
+              <span class="t-label">Paid At</span>
+              <span class="t-val font-mono">{{ completedReceipt()?.paidAt | date:'short' }}</span>
+            </div>
+          </div>
+
+          <!-- Perforated Tear Line -->
+          <div class="perforated-tear-line">
+            <div class="cutout-left"></div>
+            <div class="dashed-line"></div>
+            <div class="cutout-right"></div>
+          </div>
+
+          <!-- Total Fare Box -->
+          <div class="fare-total-box" [class.paid-fare]="!!completedReceipt()">
+            <span class="ft-label">{{ completedReceipt() ? 'TOTAL FARE PAID' : 'TOTAL COMPUTED FARE' }}</span>
+            <div class="ft-amount font-mono">
+              {{ (completedReceipt()?.fare || fareAmount()) | number:'1.2-2' }} <small>ETB</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pre-Payment Action: Pay Button -->
+        <ng-container *ngIf="!completedReceipt()">
+          <button
+            mat-flat-button
+            class="btn-cyber full-width pay-btn"
+            (click)="executePayment()"
+            [disabled]="isPaying() || !isSelectionValid() || fareAmount() <= 0"
+          >
+            <mat-spinner *ngIf="isPaying()" diameter="20" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!isPaying()">payments</mat-icon>
+            <span>{{ isPaying() ? 'Processing Fare Payment...' : ('Pay ' + (fareAmount() | number:'1.2-2') + ' ETB Now') }}</span>
+          </button>
+
+          <p class="secure-checkout-text">
+            <mat-icon>verified_user</mat-icon>
+            <span>Instant Telebirr & e-receipt manifest verification.</span>
+          </p>
+        </ng-container>
+
+        <!-- Post-Payment Actions: View E-Ticket QR Code & Pay Another -->
+        <div class="paid-action-buttons" *ngIf="completedReceipt()">
+          <button
+            mat-flat-button
+            class="btn-cyber full-width btn-view-receipt"
+            (click)="openCompletedReceiptModal()"
+          >
+            <mat-icon>qr_code_2</mat-icon>
+            <span>View Full E-Ticket & QR</span>
+          </button>
+
+          <button
+            mat-stroked-button
+            class="full-width btn-new-ride"
+            (click)="resetBooking()"
+          >
+            <mat-icon>add_circle_outline</mat-icon>
+            <span>Pay for Another Trip</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

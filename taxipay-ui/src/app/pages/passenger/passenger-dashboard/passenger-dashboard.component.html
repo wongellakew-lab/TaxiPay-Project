@@ -1,0 +1,257 @@
+<div class="passenger-dashboard-page">
+  <!-- Welcome & Wallet Banner -->
+  <div class="dash-welcome-card glass-card">
+    <div class="welcome-left">
+      <div class="commuter-badge">
+        <span class="pulse-dot"></span>
+        <span>VERIFIED COMMUTER</span>
+      </div>
+      <h1 class="welcome-title">
+        Welcome back, <span class="text-gradient-blue">{{ auth.currentUser()?.firstName || 'Passenger' }}</span>
+      </h1>
+      <p class="welcome-sub">
+        Pay minibus fares, track your transit journeys, and view official e-receipts.
+      </p>
+
+      <div class="quick-action-row">
+        <a mat-flat-button class="btn-taxi-blue pay-action-btn" routerLink="/passenger/pay">
+          <mat-icon>qr_code_scanner</mat-icon>
+          <span>Pay Minibus Ride</span>
+        </a>
+        <a mat-stroked-button class="btn-ghost-cyan" routerLink="/passenger/fare-matrix">
+          <mat-icon>table_chart</mat-icon>
+          <span>View Route Fare Matrix</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="welcome-right">
+      <div class="wallet-widget-box glass-panel">
+        <div class="ww-header">
+          <div class="ww-title">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span>TAXIPAY WALLET</span>
+          </div>
+          <span class="ww-status font-mono">ACTIVE</span>
+        </div>
+
+        <div class="ww-amount font-mono">
+          {{ walletStore.balance() | number:'1.2-2' }} <small>ETB</small>
+        </div>
+
+        <div class="ww-footer">
+          <a routerLink="/passenger/profile" class="topup-link font-mono">
+            <mat-icon>add_circle</mat-icon> Manage / Top Up
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Current Journey Section (Real-Time Database Backed from CurrentJourneyStore) -->
+  <div class="current-journey-card glass-card" *ngIf="currentJourneyStore.currentJourney() as journey" [class.awaiting-confirmation]="journey.alightingStatus === 'AwaitingConfirmation'">
+    <div class="cj-header">
+      <div class="cj-title-box">
+        <div class="live-transit-indicator">
+          <span class="pulse-dot" [class.amber-dot]="journey.alightingStatus === 'AwaitingConfirmation'"></span>
+          <span>{{ journey.alightingStatus === 'AwaitingConfirmation' ? 'ALIGHTING CONFIRMATION REQUESTED' : 'ACTIVE COMMUTE IN PROGRESS' }}</span>
+        </div>
+        <h2 class="cj-heading">
+          <mat-icon class="bus-transit-icon">directions_bus</mat-icon>
+          <span>{{ journey.routeName }}</span>
+        </h2>
+      </div>
+
+      <div class="cj-status-pill font-mono" [ngClass]="journey.alightingStatus === 'AwaitingConfirmation' ? 'pill-amber' : 'pill-emerald'">
+        <mat-icon>{{ journey.alightingStatus === 'AwaitingConfirmation' ? 'notification_important' : 'near_me' }}</mat-icon>
+        <span>{{ journey.alightingStatus === 'AwaitingConfirmation' ? 'Awaiting Your Confirmation' : 'In Transit' }}</span>
+      </div>
+    </div>
+
+    <!-- Real-Time Alighting Alert Box when confirmation is pending -->
+    <div class="alighting-alert-box" *ngIf="journey.alightingStatus === 'AwaitingConfirmation'">
+      <div class="alert-content">
+        <div class="alert-icon-wrap">
+          <mat-icon>pin_drop</mat-icon>
+        </div>
+        <div class="alert-text">
+          <h4>Destination Stop Reached</h4>
+          <p>
+            Your driver has marked you as alighted. Please confirm that you have alighted.
+          </p>
+        </div>
+      </div>
+
+      <button
+        mat-flat-button
+        class="btn-confirm-alight"
+        (click)="confirmAlighting()"
+        [disabled]="currentJourneyStore.isConfirmingAlight()"
+        id="btn-confirm-alighting"
+      >
+        <mat-progress-spinner *ngIf="currentJourneyStore.isConfirmingAlight()" diameter="20" mode="indeterminate" class="spinner"></mat-progress-spinner>
+        <mat-icon *ngIf="!currentJourneyStore.isConfirmingAlight()">check_circle</mat-icon>
+        <span>{{ currentJourneyStore.isConfirmingAlight() ? 'Confirming...' : 'Confirm Alighted' }}</span>
+      </button>
+    </div>
+
+    <!-- Journey Detail Cards Grid -->
+    <div class="cj-details-grid">
+      <div class="detail-box">
+        <span class="detail-label">DRIVER</span>
+        <div class="driver-info">
+          <span class="driver-name">{{ journey.driverName }}</span>
+          <span class="driver-code-tag font-mono">Driver #{{ journey.driverCode }}</span>
+        </div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-label">ROUTE STOPS</span>
+        <div class="stops-path">
+          <span class="stop-node from font-mono">{{ journey.boardingPoint }}</span>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+          <span class="stop-node to font-mono">{{ journey.alightingPoint }}</span>
+        </div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-label">FARE & PAYMENT</span>
+        <div class="fare-info font-mono">
+          <span class="fare-val">{{ journey.fare | number:'1.2-2' }} ETB</span>
+          <span class="badge" [ngClass]="getBadgeClass(journey.paymentMethod)">{{ journey.paymentMethod }}</span>
+        </div>
+      </div>
+
+      <div class="detail-box">
+        <span class="detail-label">BOARDED AT</span>
+        <div class="time-info font-mono">
+          <mat-icon class="time-icon">schedule</mat-icon>
+          <span>{{ journey.boardedAt | date:'shortTime' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Stat Metric Cards -->
+  <div class="metrics-grid">
+    <div class="stat-card glass-card">
+      <div class="stat-icon cyan"><mat-icon>directions_bus</mat-icon></div>
+      <div class="stat-info">
+        <span class="stat-label">TOTAL RIDES TAKEN</span>
+        <span class="stat-value font-mono">{{ dashboard()?.stats?.totalTrips || 0 }}</span>
+        <span class="stat-sub">Across city lines</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon amber"><mat-icon>payments</mat-icon></div>
+      <div class="stat-info">
+        <span class="stat-label">TOTAL FARES PAID</span>
+        <span class="stat-value font-mono">{{ (dashboard()?.stats?.totalSpent || 0) | number:'1.0-0' }} <small>ETB</small></span>
+        <span class="stat-sub">Digital cashless payments</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon emerald"><mat-icon>analytics</mat-icon></div>
+      <div class="stat-info">
+        <span class="stat-label">AVERAGE RIDE FARE</span>
+        <span class="stat-value font-mono">{{ (dashboard()?.stats?.averageFare || 0) | number:'1.2-2' }} <small>ETB</small></span>
+        <span class="stat-sub">Regulated city rates</span>
+      </div>
+    </div>
+
+    <div class="stat-card glass-card">
+      <div class="stat-icon purple"><mat-icon>star</mat-icon></div>
+      <div class="stat-info">
+        <span class="stat-label">COMMUTER RATING</span>
+        <span class="stat-value font-mono">{{ (dashboard()?.summary?.rating ?? 0) | number:'1.1-1' }} ★</span>
+        <span class="stat-sub">Commuter score</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-Column Main Content -->
+  <div class="dashboard-grid">
+    <!-- Recent Rides -->
+    <div class="grid-col main-col">
+      <div class="glass-card section-card">
+        <div class="card-header">
+          <div class="header-left">
+            <mat-icon class="icon-blue">history</mat-icon>
+            <h3>Recent Minibus Journeys</h3>
+          </div>
+          <a routerLink="/passenger/trips" class="view-all-link font-mono">
+            View All <mat-icon>chevron_right</mat-icon>
+          </a>
+        </div>
+
+        <div class="trips-list" *ngIf="dashboard()?.recentTrips?.length; else emptyTrips">
+          <div class="trip-item" *ngFor="let trip of dashboard()?.recentTrips">
+            <div class="trip-icon">
+              <mat-icon>directions_bus</mat-icon>
+            </div>
+            <div class="trip-details">
+              <div class="trip-route-row">
+                <span class="route-name">{{ trip.routeName }}</span>
+                <span class="trip-status badge badge-emerald">{{ trip.status }}</span>
+              </div>
+              <div class="trip-meta-row">
+                <span class="driver font-mono">Driver: {{ trip.driverName }} ({{ trip.driverId }})</span>
+                <span class="date font-mono">{{ trip.tripStart | date:'mediumDate' }}</span>
+              </div>
+            </div>
+            <div class="trip-fare font-mono">
+              -{{ trip.fare | number:'1.2-2' }} ETB
+            </div>
+          </div>
+        </div>
+
+        <ng-template #emptyTrips>
+          <div class="empty-state-box">
+            <mat-icon>directions_bus</mat-icon>
+            <p>No recent rides yet. Click "Pay Minibus Ride" when boarding a taxi!</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Saved Commute Routes -->
+    <div class="grid-col side-col">
+      <div class="glass-card section-card">
+        <div class="card-header">
+          <div class="header-left">
+            <mat-icon class="icon-gold">star_rate</mat-icon>
+            <h3>Frequent Transit Routes</h3>
+          </div>
+        </div>
+
+        <div class="favorites-list" *ngIf="dashboard()?.favorites?.length; else emptyFavorites">
+          <div class="fav-item" *ngFor="let fav of dashboard()?.favorites">
+            <div class="fav-icon-box">
+              <mat-icon>directions_bus</mat-icon>
+            </div>
+            <div class="fav-info">
+              <div class="fav-title-row">
+                <span class="fav-title">{{ fav.routeName || fav.name }}</span>
+                <span class="fav-fare font-mono" *ngIf="fav.fare">{{ fav.fare | number:'1.2-2' }} ETB</span>
+              </div>
+              <span class="fav-code font-mono">{{ fav.routeCode }}: Station {{ fav.fromNode }} → Station {{ fav.toNode }}</span>
+            </div>
+            <a [routerLink]="['/passenger/pay']" class="fav-pay-btn" title="Pay for this route">
+              <mat-icon>arrow_forward</mat-icon>
+            </a>
+          </div>
+        </div>
+
+        <ng-template #emptyFavorites>
+          <div class="empty-state-box">
+            <mat-icon class="empty-fav-icon">alt_route</mat-icon>
+            <strong class="empty-title">No frequent routes yet.</strong>
+            <p class="empty-sub">Your most traveled minibus routes will automatically appear here as you take rides.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

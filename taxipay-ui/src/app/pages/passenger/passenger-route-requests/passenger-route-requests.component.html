@@ -1,0 +1,232 @@
+<div class="route-requests-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <div class="header-badge">
+        <mat-icon>alt_route</mat-icon>
+        <span>COMMUTER TRANSIT INITIATIVES</span>
+      </div>
+      <h1 class="page-title">Requested <span class="text-gradient">Transit Corridors</span></h1>
+      <p class="page-subtitle">
+        Request new minibus connections and monitor official transport authority evaluations in real-time.
+      </p>
+    </div>
+    <button mat-flat-button class="btn-cyan submit-req-btn" (click)="openSubmitModal()">
+      <mat-icon>add_location_alt</mat-icon>
+      <span>Suggest New Route</span>
+    </button>
+  </div>
+
+  <!-- Controls & Filter Bar -->
+  <div class="glass-card controls-card">
+    <div class="filter-group">
+      <!-- Search input -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by station or corridor</mat-label>
+        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"/>
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Status Filter Tabs -->
+      <div class="status-pill-group">
+        <button
+          class="status-pill"
+          [class.active]="selectedStatus() === 'all'"
+          (click)="setStatusFilter('all')"
+        >
+          All ({{ routeRequestStore.totalCount() }})
+        </button>
+        <button
+          class="status-pill pending"
+          [class.active]="selectedStatus() === 'pending'"
+          (click)="setStatusFilter('pending')"
+        >
+          <span class="dot"></span>
+          Pending ({{ routeRequestStore.pendingCount() }})
+        </button>
+        <button
+          class="status-pill approved-pill"
+          [class.active]="selectedStatus() === 'approved'"
+          (click)="setStatusFilter('approved')"
+        >
+          <span class="dot"></span>
+          Approved ({{ routeRequestStore.approvedCount() }})
+        </button>
+        <button
+          class="status-pill rejected-pill"
+          [class.active]="selectedStatus() === 'rejected'"
+          (click)="setStatusFilter('rejected')"
+        >
+          <span class="dot"></span>
+          Rejected ({{ routeRequestStore.rejectedCount() }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Route Requests Table Card -->
+  <div class="glass-card table-card">
+    <div class="table-responsive">
+      <table class="requests-table">
+        <thead>
+          <tr>
+            <th class="sortable-th" (click)="toggleSort('path')">
+              <div class="th-content">
+                <span>REQUESTED CORRIDOR</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('path') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('details')">
+              <div class="th-content">
+                <span>COMMUTER JUSTIFICATION</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('details') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('status')">
+              <div class="th-content">
+                <span>EVALUATION STATUS</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('status') }}</mat-icon>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('date')">
+              <div class="th-content">
+                <span>REQUESTED DATE</span>
+                <mat-icon class="sort-icon">{{ getSortIcon('date') }}</mat-icon>
+              </div>
+            </th>
+            <th>AUTHORITY FEEDBACK</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of filteredRequests()" [class.pending-row]="req.status === 'Pending'" [class.approved-row]="req.status === 'Approved'" [class.rejected-row]="req.status === 'Rejected'">
+            <!-- Corridor -->
+            <td>
+              <div class="corridor-box">
+                <div class="corridor-icon">
+                  <mat-icon>directions_bus</mat-icon>
+                </div>
+                <div class="corridor-path">
+                  <div class="path-title">{{ req.fromLocation }} <span class="arrow">→</span> {{ req.toLocation }}</div>
+                  <div class="path-meta font-mono">ID: {{ req.id.substring(0, 8).toUpperCase() }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Description / Justification -->
+            <td>
+              <span class="justification-text">{{ req.description || 'No additional commuter notes provided.' }}</span>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span class="status-badge font-mono" [ngClass]="req.status.toLowerCase()">
+                {{ req.status }}
+              </span>
+            </td>
+
+            <!-- Requested Date -->
+            <td class="font-mono text-muted text-sm">
+              <div class="date-box">
+                <span class="date-main">{{ req.requestedAt | date:'mediumDate' }}</span>
+                <span class="date-time">{{ req.requestedAt | date:'shortTime' }}</span>
+              </div>
+            </td>
+
+            <!-- Authority Feedback -->
+            <td>
+              <div *ngIf="req.adminNotes" class="admin-feedback">
+                <mat-icon>comment</mat-icon>
+                <span>{{ req.adminNotes }}</span>
+              </div>
+              <div *ngIf="!req.adminNotes && req.status === 'Pending'" class="feedback-pending">
+                <mat-icon>hourglass_empty</mat-icon>
+                <span>Under transit review</span>
+              </div>
+              <div *ngIf="!req.adminNotes && req.status !== 'Pending'" class="feedback-none">
+                <span>—</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredRequests().length === 0">
+            <td colspan="5" class="empty-state-cell">
+              <mat-icon>explore_off</mat-icon>
+              <p>No route requests found matching your filter criteria.</p>
+              <button mat-stroked-button class="mt-3" (click)="openSubmitModal()">
+                <mat-icon>add</mat-icon> Submit Your First Route Request
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal: Submit New Route Request -->
+  <div *ngIf="showSubmitModal" class="modal-backdrop">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h3>Suggest Transit Corridor</h3>
+        <button mat-icon-button (click)="showSubmitModal = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" novalidate>
+        <div class="modal-body">
+          <p class="modal-desc">
+            Help improve public transport connectivity in Addis Ababa by proposing new or underserved minibus lines.
+          </p>
+
+          <div class="form-field-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Boarding Station / Origin *</mat-label>
+              <input matInput formControlName="fromLocation" placeholder="e.g. Tor Hailoch, CMC, Ayat" required />
+              <mat-icon matPrefix>trip_origin</mat-icon>
+              <mat-error *ngIf="formControls['fromLocation'].hasError('required')">
+                Origin location is required.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-field-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Destination Station / Terminus *</mat-label>
+              <input matInput formControlName="toLocation" placeholder="e.g. Megenagna, Bole Medhanialem, Mexico" required />
+              <mat-icon matPrefix>location_on</mat-icon>
+              <mat-error *ngIf="formControls['toLocation'].hasError('required')">
+                Destination location is required.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-field-group">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Commuter Demand & Rationale</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                formControlName="description"
+                placeholder="Describe rush-hour passenger volumes, lack of direct connections, or peak commute bottlenecks..."
+              ></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button mat-button type="button" (click)="showSubmitModal = false">Cancel</button>
+          <button
+            mat-flat-button
+            class="btn-cyan"
+            type="submit"
+            [disabled]="routeRequestStore.isSubmitting() || requestForm.invalid"
+          >
+            <mat-spinner *ngIf="routeRequestStore.isSubmitting()" diameter="18" class="mr-2"></mat-spinner>
+            <mat-icon *ngIf="!routeRequestStore.isSubmitting()">send</mat-icon>
+            <span>{{ routeRequestStore.isSubmitting() ? 'Submitting...' : 'Submit Route Suggestion' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

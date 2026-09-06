@@ -1,0 +1,953 @@
+.pay-trip-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    background: rgba(2, 132, 199, 0.15);
+    border: 1px solid rgba(2, 132, 199, 0.35);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    margin-bottom: 10px;
+
+    mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    color: var(--text-primary);
+  }
+
+  .page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+.pay-layout-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pay-step-card {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .step-num {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0284c7;
+    background: rgba(2, 132, 199, 0.12);
+    border: 1px solid rgba(2, 132, 199, 0.3);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-title-group {
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: var(--text-primary);
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+}
+
+/* Driver Input & Clean Natural Spacing */
+.driver-input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  .driver-field-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .driver-code-field {
+    width: 100%;
+
+    .field-prefix-icon {
+      color: var(--text-muted);
+      margin-right: 8px;
+    }
+
+    .driver-text-input {
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  .search-btn {
+    height: 48px;
+    padding: 0 22px;
+    font-weight: 700;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+}
+
+/* Red Validation Error Message */
+.field-error-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 2px;
+  margin-top: 2px;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: #ef4444;
+  }
+}
+
+/* Autocomplete Item Styles */
+.driver-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+
+  .doi-code {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #38bdf8;
+    font-weight: 800;
+
+    .option-car-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  .doi-details {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .doi-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .doi-route {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.no-match-content, .searching-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Verified Driver Profile Banner */
+.verified-driver-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+
+  .taxi-vehicle-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #0284c7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+
+    .taxi-icon { font-size: 1.6rem; width: 1.6rem; height: 1.6rem; }
+  }
+
+  .driver-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+
+    .driver-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+
+      .d-name {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+    }
+
+    .driver-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+
+      .d-rating {
+        color: #f59e0b;
+        font-weight: 700;
+      }
+    }
+
+    .driver-direction-row {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #38bdf8;
+
+      strong {
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+.no-active-trip-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 8px;
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+  }
+}
+
+/* Empty State Card */
+.empty-state-card {
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px dashed rgba(2, 132, 199, 0.35);
+  background: var(--bg-surface);
+
+  .empty-hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    .empty-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(2, 132, 199, 0.35);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      mat-icon { font-size: 2rem; width: 2rem; height: 2rem; }
+    }
+
+    .empty-text-group {
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin: 0 0 4px 0;
+        color: var(--text-primary);
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+    }
+  }
+
+  .commuter-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+
+    .guide-card {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 10px;
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+
+      .guide-step-badge {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(2, 132, 199, 0.2);
+        color: #38bdf8;
+        font-weight: 800;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .guide-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        h4 {
+          font-size: 0.85rem;
+          font-weight: 700;
+          margin: 0;
+          color: var(--text-primary);
+        }
+
+        p {
+          font-size: 0.76rem;
+          color: var(--text-muted);
+          margin: 0;
+          line-height: 1.35;
+
+          code {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 1px 4px;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Active Direction Notice */
+.active-direction-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border-left: 4px solid #0284c7;
+
+  .adn-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+
+    mat-icon { font-size: 0.95rem; width: 0.95rem; height: 0.95rem; }
+  }
+
+  .adn-text {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+}
+
+/* Stop Selectors */
+.stop-selectors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  .selector-field-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.direction-hint-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+
+  mat-icon { font-size: 0.95rem; width: 0.95rem; height: 0.95rem; color: #38bdf8; }
+}
+
+/* Payment Methods */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.method-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .method-icon-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon { font-size: 1.3rem; width: 1.3rem; height: 1.3rem; }
+  }
+
+  .method-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .m-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .m-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  }
+
+  .method-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .radio-inner {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #0284c7;
+    }
+  }
+
+  &:hover {
+    border-color: rgba(2, 132, 199, 0.4);
+  }
+
+  &.active {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.1);
+
+    .method-radio {
+      border-color: #0284c7;
+    }
+  }
+}
+
+/* Right Column: Persistent Sticky E-Ticket Receipt */
+.checkout-column {
+  position: sticky;
+  top: 88px;
+}
+
+.modern-receipt-card {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  background: var(--bg-glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-glass);
+}
+
+body.dark-theme .modern-receipt-card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 20, 0.98));
+}
+
+.receipt-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-glass);
+
+  .rh-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .receipt-star-icon {
+      color: #f59e0b;
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .ticket-type-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--color-primary-light);
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(2, 132, 199, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  }
+
+  .receipt-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 4px 0 0 0;
+    color: var(--text-primary);
+  }
+
+  .receipt-subtitle {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 0;
+  }
+}
+
+.receipt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .ticket-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ticket-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+
+    .t-label { color: var(--text-secondary); font-weight: 500; }
+    .t-val { font-weight: 700; color: var(--text-primary); }
+  }
+
+  .journey-stops-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .stop-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .stop-icon-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &.amber {
+          background: #f59e0b;
+          box-shadow: 0 0 8px #f59e0b;
+        }
+
+        &.cyan {
+          background: #0284c7;
+          box-shadow: 0 0 8px #0284c7;
+        }
+      }
+
+      .stop-info {
+        display: flex;
+        flex-direction: column;
+
+        .stop-role {
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          color: var(--text-muted);
+        }
+
+        .stop-name {
+          font-size: 0.85rem;
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    .journey-connector-line {
+      width: 2px;
+      height: 12px;
+      background: var(--border-glass);
+      margin-left: 4px;
+    }
+  }
+
+  /* Perforated Tear Line */
+  .perforated-tear-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+
+    .dashed-line {
+      flex: 1;
+      border-top: 2px dashed var(--border-glass);
+    }
+  }
+
+  .fare-total-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(2, 132, 199, 0.12);
+    border: 1px solid rgba(2, 132, 199, 0.35);
+
+    .ft-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--color-primary-light);
+    }
+
+    .ft-amount {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+
+      small {
+        font-size: 1rem;
+        color: var(--color-primary-light);
+      }
+    }
+  }
+}
+
+/* Prominent PAID Status Banner in Sticky Sidebar */
+.receipt-paid-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 10px;
+  margin: 2px 0;
+
+  .rpb-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .rpb-icon {
+      font-size: 1.3rem;
+      width: 1.3rem;
+      height: 1.3rem;
+      color: #10b981;
+    }
+
+    .rpb-text {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #10b981;
+      line-height: 1;
+    }
+  }
+
+  .rpb-code {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #34d399;
+  }
+}
+
+body.light-theme .receipt-paid-banner {
+  background: #ecfdf5;
+  border-color: #10b981;
+
+  .rpb-badge .rpb-icon,
+  .rpb-badge .rpb-text {
+    color: #047857;
+  }
+
+  .rpb-code {
+    color: #065f46;
+  }
+}
+
+.paid-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+
+  .btn-view-receipt {
+    height: 46px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-new-ride {
+    height: 42px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border-color: var(--border-glass);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    &:hover {
+      background: rgba(2, 132, 199, 0.08);
+      color: var(--text-primary);
+    }
+  }
+}
+
+:host-context(body.light-theme),
+:host-context(.light-theme),
+body.light-theme,
+html.light-theme,
+[data-theme='light'] {
+  .page-title { color: #0f172a !important; }
+  .page-subtitle { color: #475569 !important; }
+
+  .pay-step-card,
+  .route-selection-card,
+  .empty-state-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .step-title-group h3 { color: #0f172a !important; }
+  .step-title-group p { color: #64748b !important; }
+
+  .method-chip {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+
+    &.active {
+      background: #e0f2fe !important;
+      border-color: #0284c7 !important;
+      color: #0284c7 !important;
+    }
+  }
+
+  .modern-receipt-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+    .receipt-title {
+      color: #0f172a;
+    }
+
+    .receipt-subtitle {
+      color: #64748b;
+    }
+
+    .ticket-row .t-label {
+      color: #64748b;
+    }
+
+    .ticket-row .t-val {
+      color: #0f172a;
+    }
+
+    .journey-stops-card {
+      background: #f8fafc;
+      border-color: rgba(0, 0, 0, 0.08);
+
+      .stop-info .stop-role {
+        color: #64748b;
+      }
+
+      .stop-info .stop-name {
+        color: #0f172a;
+      }
+    }
+
+    .fare-total-box {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+
+      .ft-label {
+        color: var(--color-taxi-blue-dark);
+      }
+
+      .ft-amount {
+        color: #0f172a;
+        small { color: var(--color-taxi-blue-dark); }
+      }
+
+      &.paid-fare {
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+
+        .ft-label {
+          color: #047857;
+        }
+
+        .ft-amount {
+          color: #065f46;
+          small { color: #047857; }
+        }
+      }
+    }
+
+    .paid-action-buttons .btn-new-ride {
+      border-color: #cbd5e1;
+      color: #334155;
+
+      &:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+    }
+  }
+
+  .active-direction-notice .adn-tag {
+    color: var(--color-taxi-blue-dark);
+  }
+}
+
+.pay-btn {
+  height: 48px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+}
+
+.secure-checkout-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin: 0;
+
+  mat-icon {
+    font-size: 0.95rem;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: #10b981;
+  }
+}
+
+.btn-spinner {
+  margin-right: 6px;
+}
+
+@media (max-width: 992px) {
+  .pay-layout-grid { grid-template-columns: 1fr; }
+  .stop-selectors-grid { grid-template-columns: 1fr; }
+  .empty-state-card .commuter-guide-grid { grid-template-columns: 1fr; }
+  /* Disable sticky when layout is single-column — let ticket flow naturally */
+  .checkout-column {
+    position: static;
+    top: auto;
+  }
+}

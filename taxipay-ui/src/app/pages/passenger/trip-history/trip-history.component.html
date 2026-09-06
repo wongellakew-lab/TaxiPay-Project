@@ -1,0 +1,183 @@
+<div class="history-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-badge">
+      <mat-icon>receipt_long</mat-icon>
+      <span>TRANSIT LOGS & TICKETS</span>
+    </div>
+    <h1 class="page-title">Passenger <span class="text-gradient">Ride History</span></h1>
+    <p class="page-subtitle">
+      View all your completed transit journeys, track expenses, and access official verifiable digital receipts.
+    </p>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="glass-card filter-toolbar">
+    <div class="search-input-box">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search journey, station, or driver</mat-label>
+        <input matInput [ngModel]="historyStore.searchTerm()" (ngModelChange)="onSearchChange($event)" />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="filter-dropdowns">
+      <mat-form-field appearance="outline" class="dropdown-field">
+        <mat-label>Payment Method</mat-label>
+        <mat-select [ngModel]="historyStore.filterStatus()" (ngModelChange)="onMethodFilterChange($event)">
+          <mat-option value="ALL">All Methods</mat-option>
+          <mat-option value="Telebirr">Telebirr</mat-option>
+          <mat-option value="Wallet">TaxiPay Wallet</mat-option>
+          <mat-option value="CBEBirr">CBE Birr</mat-option>
+          <mat-option value="Cash">Cash</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-button class="btn-ghost export-btn" (click)="exportHistory()" title="Download CSV report">
+        <mat-icon>download</mat-icon> Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- History Table Card -->
+  <div class="glass-card table-card">
+    <div class="table-responsive">
+      <table mat-table [dataSource]="historyStore.filteredTrips()" class="trips-table">
+        <!-- Date & Time Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef class="col-date sortable-th" (click)="toggleSort('date')">
+            <div class="th-content">
+              <span>Date & Time</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('date') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-date">
+            <div class="date-cell">
+              <span class="date-main font-mono">{{ item.tripStart | date:'mediumDate' }}</span>
+              <span class="date-time font-mono">{{ item.tripStart | date:'shortTime' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Journey Column: Boarding Point → Alighting Point -->
+        <ng-container matColumnDef="journey">
+          <th mat-header-cell *matHeaderCellDef class="col-journey sortable-th" (click)="toggleSort('journey')">
+            <div class="th-content">
+              <span>Journey</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('journey') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-journey">
+            <div class="journey-cell">
+              <div class="journey-path">
+                <span class="journey-stop from">{{ getBoardingName(item) }}</span>
+                <mat-icon class="journey-arrow">arrow_forward</mat-icon>
+                <span class="journey-stop to">{{ getDestinationName(item) }}</span>
+              </div>
+              <span class="journey-meta font-mono" *ngIf="item.routeName">{{ item.routeName }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Driver Column -->
+        <ng-container matColumnDef="driver">
+          <th mat-header-cell *matHeaderCellDef class="col-driver sortable-th" (click)="toggleSort('driver')">
+            <div class="th-content">
+              <span>Driver</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('driver') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-driver">
+            <div class="driver-cell">
+              <span class="driver-name">{{ item.driverName || 'Verified Minibus' }}</span>
+              <span class="driver-code font-mono">{{ item.driverId || 'ID N/A' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fare Column -->
+        <ng-container matColumnDef="fare">
+          <th mat-header-cell *matHeaderCellDef class="col-fare sortable-th" (click)="toggleSort('fare')">
+            <div class="th-content">
+              <span>Fare Paid</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('fare') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-fare">
+            <div class="fare-cell font-mono">
+              <span class="fare-amount">{{ item.fare | number:'1.2-2' }}</span>
+              <span class="fare-curr">ETB</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Payment Method Column -->
+        <ng-container matColumnDef="method">
+          <th mat-header-cell *matHeaderCellDef class="col-method sortable-th" (click)="toggleSort('method')">
+            <div class="th-content">
+              <span>Method</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('method') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-method">
+            <span class="badge" [ngClass]="getBadgeClass(item.paymentMethod)">
+              {{ item.paymentMethod }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="col-status sortable-th" (click)="toggleSort('status')">
+            <div class="th-content">
+              <span>Status</span>
+              <mat-icon class="sort-icon">{{ getSortIcon('status') }}</mat-icon>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let item" class="col-status">
+            <span class="badge" [ngClass]="getStatusBadgeClass(item.paymentStatus || item.status)">
+              <mat-icon class="badge-icon">check_circle</mat-icon>
+              {{ item.paymentStatus || item.status || 'Completed' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="col-actions"> Receipt </th>
+          <td mat-cell *matCellDef="let item" class="col-actions">
+            <button mat-button class="btn-cyan text-xs ticket-btn" (click)="openTicket(item)" title="View official transit e-ticket">
+              <mat-icon>receipt</mat-icon>
+              <span>E-Ticket</span>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="interactive-row"></tr>
+      </table>
+
+      <!-- Empty State -->
+      <div class="empty-history-box" *ngIf="!historyStore.filteredTrips().length">
+        <div class="empty-icon-wrap">
+          <mat-icon>history_toggle_off</mat-icon>
+        </div>
+        <h3 class="empty-title">No Ride History Found</h3>
+        <p class="empty-sub">
+          {{ historyStore.searchTerm() ? 'No transit journeys match your search filter.' : 'You have not taken any minibus rides yet. Completed rides will appear here.' }}
+        </p>
+        <button *ngIf="historyStore.searchTerm() || historyStore.filterStatus() !== 'ALL'" mat-stroked-button class="btn-ghost clear-filter-btn" (click)="resetFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <mat-paginator
+      [length]="historyStore.totalCount()"
+      [pageSize]="historyStore.pageSize()"
+      [pageSizeOptions]="[5, 10, 25]"
+      (page)="onPageChanged($event)"
+      class="table-paginator"
+    ></mat-paginator>
+  </div>
+</div>
