@@ -1,0 +1,341 @@
+.notif-trigger-btn {
+  color: var(--text-secondary);
+  transition: transform 0.15s ease;
+  position: relative;
+
+  &:hover {
+    color: var(--taxipay-blue);
+    background: rgba(14, 116, 219, 0.08);
+  }
+
+  &.has-unread {
+    color: var(--text-primary);
+
+    .icon-highlight {
+      color: #f59e0b;
+      animation: bell-attention 3s ease-in-out infinite;
+    }
+
+    &:hover {
+      background: rgba(245, 158, 11, 0.12);
+    }
+  }
+}
+
+@keyframes bell-attention {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  5% {
+    transform: rotate(14deg);
+  }
+  10% {
+    transform: rotate(-12deg);
+  }
+  15% {
+    transform: rotate(8deg);
+  }
+  20% {
+    transform: rotate(-6deg);
+  }
+  25% {
+    transform: rotate(0deg);
+  }
+}
+
+::ng-deep .notification-dropdown-menu.mat-mdc-menu-panel {
+  width: 380px;
+  max-width: 90vw;
+  max-height: 480px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.notif-panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--bg-surface-elevated);
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .panel-icon {
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--taxipay-blue);
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .unread-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(220, 38, 38, 0.15);
+      color: #ef4444;
+    }
+  }
+
+  .mark-all-btn {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--taxipay-blue);
+    padding: 0 8px;
+    height: 28px;
+    line-height: 28px;
+
+    &:hover {
+      background: rgba(14, 116, 219, 0.1);
+    }
+  }
+}
+
+.notif-items-container {
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 3px;
+  }
+}
+
+.notif-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+
+  .spin-icon {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.notif-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+
+  .empty-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  .empty-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .empty-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  &.unread {
+    background: rgba(14, 116, 219, 0.04);
+
+    &:hover {
+      background: rgba(14, 116, 219, 0.08);
+    }
+  }
+
+  .notif-icon-col {
+    flex-shrink: 0;
+
+    .icon-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(14, 116, 219, 0.12);
+      color: var(--taxipay-blue);
+
+      mat-icon {
+        font-size: 1.1rem;
+        width: 1.1rem;
+        height: 1.1rem;
+      }
+
+      &.success {
+        background: rgba(16, 185, 129, 0.12);
+        color: #10b981;
+      }
+
+      &.warning {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+      }
+
+      &.error {
+        background: rgba(239, 68, 68, 0.12);
+        color: #ef4444;
+      }
+    }
+  }
+
+  .notif-body-col {
+    flex: 1;
+    min-width: 0;
+
+    .notif-headline-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+
+      .notif-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .notif-time {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        flex-shrink: 0;
+      }
+    }
+
+    .notif-message {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin: 0 0 6px 0;
+      word-break: break-word;
+    }
+
+    .notif-action-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--taxipay-blue);
+      text-decoration: none;
+
+      mat-icon {
+        font-size: 0.8rem;
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .unread-indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--taxipay-blue);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+::ng-deep body.light-theme,
+::ng-deep html.light-theme,
+::ng-deep [data-theme='light'] {
+  .notification-dropdown-menu.mat-mdc-menu-panel {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+
+    .notif-panel-header {
+      background: #f8fafc !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+
+    .notif-item {
+      border-bottom: 1px solid #e2e8f0 !important;
+
+      &:hover {
+        background: #f1f5f9 !important;
+      }
+
+      &.unread {
+        background: rgba(2, 132, 199, 0.05) !important;
+
+        &:hover {
+          background: rgba(2, 132, 199, 0.1) !important;
+        }
+      }
+    }
+
+    .empty-icon-box {
+      background: rgba(0, 0, 0, 0.04) !important;
+    }
+  }
+}

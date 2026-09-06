@@ -1,0 +1,90 @@
+<div class="route-timeline-container" #timelineContainer>
+  <!-- Header -->
+  <div class="timeline-header">
+    <div class="route-meta">
+      <span class="route-code-badge font-mono">{{ routeCode || 'N/A' }}</span>
+      <span class="route-name-text">{{ routeName || 'Transit Corridor' }}</span>
+    </div>
+    <div class="selection-status-badge font-mono" *ngIf="isInteractive">
+      <span class="badge-dot" [class.ready]="isValidSelection"></span>
+      <span>{{ selectionStatusText }}</span>
+    </div>
+  </div>
+
+  <!-- Timeline Rail Track & Interactive Markers -->
+  <div class="timeline-track-area">
+    <!-- Connecting Track Line (Exactly from First Stop Center to Last Stop Center) -->
+    <div
+      class="timeline-track-base"
+      [style.left]="trackLeftStyle"
+      [style.width]="trackWidthStyle"
+    >
+      <!-- Active Segment Progress Fill -->
+      <div
+        *ngIf="fromIdx >= 0 && toIdx > fromIdx"
+        class="timeline-track-progress"
+        [style.left]="progressLeftStyle"
+        [style.width]="progressWidthStyle"
+      ></div>
+    </div>
+
+    <!-- Stop Nodes / Stations Grid -->
+    <div class="timeline-nodes-wrapper">
+      <div
+        *ngFor="let node of nodes; let i = index"
+        class="timeline-node"
+        [class.selected-from]="node.id === selectedFrom"
+        [class.selected-to]="node.id === selectedTo"
+        [class.in-range]="isInRange(i)"
+        [class.clickable]="isInteractive"
+        (click)="onNodeClick(node, i)"
+        [matTooltip]="getNodeTooltip(node, i)"
+      >
+        <!-- Marker Circle -->
+        <div class="node-circle">
+          <span class="node-index font-mono">{{ node.id }}</span>
+          <div class="pulse-ring" *ngIf="node.id === selectedFrom || node.id === selectedTo"></div>
+        </div>
+
+        <!-- Details -->
+        <div class="node-details">
+          <span class="node-name">{{ node.name }}</span>
+          <span class="node-role font-mono from-tag" *ngIf="node.id === selectedFrom">Boarding</span>
+          <span class="node-role font-mono dest-tag" *ngIf="node.id === selectedTo">Alighting</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draggable Boarding Marker (Amber) -->
+    <div
+      *ngIf="isInteractive && fromIdx >= 0"
+      class="draggable-marker marker-from"
+      [style.left]="getMarkerPositionPercent(fromIdx)"
+      (pointerdown)="onDragStart($event, 'from')"
+    >
+      <div class="marker-pin amber-pin">
+        <mat-icon class="pin-icon">trip_origin</mat-icon>
+        <span class="marker-tag font-mono">FROM: {{ nodes[fromIdx]?.id }}</span>
+      </div>
+      <div class="marker-handle font-mono" title="Drag to change boarding stop">
+        <mat-icon>drag_indicator</mat-icon>
+      </div>
+    </div>
+
+    <!-- Draggable Alighting Marker (Cyan) -->
+    <div
+      *ngIf="isInteractive && toIdx >= 0"
+      class="draggable-marker marker-to"
+      [style.left]="getMarkerPositionPercent(toIdx)"
+      (pointerdown)="onDragStart($event, 'to')"
+    >
+      <div class="marker-pin cyan-pin">
+        <mat-icon class="pin-icon">location_on</mat-icon>
+        <span class="marker-tag font-mono">TO: {{ nodes[toIdx]?.id }}</span>
+      </div>
+      <div class="marker-handle font-mono" title="Drag to change drop-off stop">
+        <mat-icon>drag_indicator</mat-icon>
+      </div>
+    </div>
+  </div>
+</div>

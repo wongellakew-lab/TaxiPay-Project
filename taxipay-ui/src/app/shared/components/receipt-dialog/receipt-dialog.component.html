@@ -1,0 +1,101 @@
+<div class="receipt-modal-container">
+  <div class="ticket-wrapper">
+    <!-- Perforated top header -->
+    <div class="ticket-header">
+      <div class="brand-logo">
+        <mat-icon class="brand-icon">local_taxi</mat-icon>
+        <span class="brand-name">TAXIPAY</span>
+      </div>
+      <div class="official-badge">
+        <span>OFFICIAL MINIBUS E-TICKET</span>
+      </div>
+    </div>
+
+    <!-- Prominent PAID Status Banner -->
+    <div class="paid-stamp-banner">
+      <div class="paid-badge">
+        <mat-icon class="paid-check">check_circle</mat-icon>
+        <span class="paid-text">PAID</span>
+      </div>
+      <span class="paid-sub font-mono">PAYMENT CONFIRMED • TRANSIT VERIFIED</span>
+    </div>
+
+    <!-- QR Code & Security Stamp -->
+    <div class="qr-section">
+      <div class="qr-canvas-box">
+        <canvas #qrCanvas></canvas>
+      </div>
+      <div class="receipt-code-label">
+        <span class="label">OFFICIAL RECEIPT NUMBER</span>
+        <span class="value font-mono">{{ receipt.receiptNumber }}</span>
+      </div>
+    </div>
+
+    <!-- Ticket Body Details -->
+    <div class="ticket-body">
+      <div class="ticket-row">
+        <div class="ticket-col">
+          <span class="meta-label">CORRIDOR ROUTE</span>
+          <span class="meta-val font-mono">{{ receipt.routeName }}</span>
+        </div>
+        <div class="ticket-col right">
+          <span class="meta-label">DATE & TIME PAID</span>
+          <span class="meta-val font-mono">{{ receipt.paidAt | date:'medium' }}</span>
+        </div>
+      </div>
+
+      <div class="transit-segment">
+        <div class="segment-node">
+          <span class="node-tag">BOARDING STOP</span>
+          <span class="node-title">{{ receipt.boardingNode }}</span>
+        </div>
+        <div class="segment-arrow">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+        <div class="segment-node right">
+          <span class="node-tag dest">ALIGHTING STOP</span>
+          <span class="node-title">{{ receipt.destinationNode }}</span>
+        </div>
+      </div>
+
+      <div class="divider-dashed"></div>
+
+      <div class="ticket-row">
+        <div class="ticket-col">
+          <span class="meta-label">MINIBUS DRIVER</span>
+          <span class="meta-val">{{ receipt.driverName }}</span>
+          <span class="driver-code-pill font-mono">{{ receipt.driverId }}</span>
+        </div>
+        <div class="ticket-col right">
+          <span class="meta-label">PAYMENT CHANNEL</span>
+          <span class="method-tag font-mono">{{ receipt.paymentMethod }}</span>
+        </div>
+      </div>
+
+      <div class="total-fare-box">
+        <div class="fare-label">TOTAL FARE PAID</div>
+        <div class="fare-amount font-mono">
+          {{ receipt.fare | number:'1.2-2' }} <span class="currency">ETB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perforation teeth -->
+    <div class="perforation-line">
+      <div class="notch left"></div>
+      <div class="dashes"></div>
+      <div class="notch right"></div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="ticket-footer">
+      <button mat-flat-button class="btn-cyber full-width" (click)="printReceipt()">
+        <mat-icon>print</mat-icon>
+        Print / Save Receipt
+      </button>
+      <button mat-button class="btn-close-ticket full-width" (click)="close()">
+        Close Receipt
+      </button>
+    </div>
+  </div>
+</div>
