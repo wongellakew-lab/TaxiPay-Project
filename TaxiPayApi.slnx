@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="TaxiPayApi.Api/TaxiPayApi.Api.csproj" />
+  <Project Path="TaxiPayApi.Application/TaxiPayApi.Application.csproj" />
+  <Project Path="TaxiPayApi.Domain/TaxiPayApi.Domain.csproj" />
+  <Project Path="TaxiPayApi.Infrastructure/TaxiPayApi.Infrastructure.csproj" />
+  <Project Path="TaxiPayApi.Tests/TaxiPayApi.Tests.csproj" />
+</Solution>

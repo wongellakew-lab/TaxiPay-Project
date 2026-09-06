@@ -1,0 +1,47 @@
+## .NET
+bin/
+obj/
+*.user
+
+## Visual Studio
+.vs/
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+
+## NuGet
+*.nupkg
+packages/
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+
+## OS
+.DS_Store
+Thumbs.db
+
+## App Settings
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.local.json
+*.local.json
+
+## Node / Angular
+node_modules/
+.angular/
+dist/
+.npm/
+.yarn/
+coverage/
+*.log
+
+## Screenshot tooling
+screenshots/chrome-profile/

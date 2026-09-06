@@ -1,0 +1,17 @@
+{
+  "folders": [
+    { "path": "TaxiPayApi.Api" },
+    { "path": "TaxiPayApi.Infrastructure" },
+    { "path": "TaxiPayApi.Application" },
+    { "path": "TaxiPayApi.Domain" },
+    { "path": ".", "name": "Root files" },
+  ],
+  "settings": {
+    "files.exclude": {
+      "TaxiPayApi.Api": true,
+      "TaxiPayApi.Infrastructure": true,
+      "TaxiPayApi.Application": true,
+      "TaxiPayApi.Domain": true,
+    },
+  },
+}
