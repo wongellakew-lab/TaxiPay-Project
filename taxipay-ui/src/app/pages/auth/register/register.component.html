@@ -1,0 +1,264 @@
+<div class="auth-page-container">
+  <div class="auth-card-box">
+    <div class="back-home-wrap">
+      <a routerLink="/login" class="back-home-link">
+        <mat-icon>arrow_back</mat-icon> Back to Sign In
+      </a>
+    </div>
+
+    <div class="auth-header">
+      <div class="logo-circle">
+        <mat-icon>app_registration</mat-icon>
+      </div>
+      <h1>Create <span class="text-gradient">TaxiPay</span> Account</h1>
+      <p>Register as a commuter passenger or enroll as a licensed minibus driver.</p>
+    </div>
+
+    <div class="glass-card register-form-card">
+      <!-- Error Alert Banner -->
+      <div *ngIf="errorMessage()" class="auth-alert-banner error-banner" role="alert">
+        <mat-icon class="alert-icon">error_outline</mat-icon>
+        <div class="alert-content">
+          <strong>Registration Failed</strong>
+          <span>{{ errorMessage() }}</span>
+        </div>
+        <button mat-icon-button (click)="errorMessage.set(null)" type="button" class="alert-close" aria-label="Close error message">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-tab-group
+        mat-stretch-tabs="false"
+        mat-align-tabs="center"
+        class="auth-tabs"
+        [(selectedIndex)]="selectedTabIndex"
+        (selectedIndexChange)="onTabChange($event)"
+      >
+        <!-- Passenger Register Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">person_add</mat-icon>
+            <span>Passenger Account</span>
+          </ng-template>
+
+          <form [formGroup]="pForm" (ngSubmit)="registerPassenger()" class="tab-form" novalidate>
+            <div class="name-grid">
+              <div class="form-field-group">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName" autocomplete="given-name" aria-required="true" />
+                  <mat-icon matPrefix class="field-prefix-icon">person</mat-icon>
+                  <mat-error *ngIf="pControls['firstName'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                    <mat-icon class="error-inline-icon">error</mat-icon>
+                    <span>First name is required.</span>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-field-group">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName" autocomplete="family-name" aria-required="true" />
+                  <mat-icon matPrefix class="field-prefix-icon">person_outline</mat-icon>
+                  <mat-error *ngIf="pControls['lastName'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                    <mat-icon class="error-inline-icon">error</mat-icon>
+                    <span>Last name is required.</span>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Mobile Phone Number</mat-label>
+                <input matInput formControlName="phone"  class="font-mono" autocomplete="tel" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">phone</mat-icon>
+                <mat-error *ngIf="pControls['phone'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Phone number is required.</span>
+                </mat-error>
+                <mat-error *ngIf="pControls['phone'].hasError('pattern') && !pControls['phone'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Enter valid 10-digit Ethiopian phone (e.g. 0911002233 or 0711002233).</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Create Password</mat-label>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">lock</mat-icon>
+                <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'" tabindex="-1">
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="pControls['password'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password is required.</span>
+                </mat-error>
+                <mat-error *ngIf="pControls['password'].hasError('weakPassword') && !pControls['password'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password must be at least 8 characters with uppercase, lowercase, and a number.</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">lock_reset</mat-icon>
+                <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button" [attr.aria-label]="hideConfirmPassword ? 'Show password' : 'Hide password'" tabindex="-1">
+                  <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="pControls['confirmPassword'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password confirmation is required.</span>
+                </mat-error>
+                <mat-error *ngIf="pControls['confirmPassword'].hasError('passwordMismatch') && !pControls['confirmPassword'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Passwords do not match.</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <button mat-flat-button class="btn-cyan full-width submit-btn" type="submit" [disabled]="isLoading()">
+              <mat-spinner *ngIf="isLoading()" diameter="20" class="btn-spinner"></mat-spinner>
+              <mat-icon *ngIf="!isLoading()">how_to_reg</mat-icon>
+              <span>{{ isLoading() ? 'Creating Account...' : 'Create Passenger Account' }}</span>
+            </button>
+          </form>
+        </mat-tab>
+
+        <!-- Driver Register Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">local_taxi</mat-icon>
+            <span>Driver Accreditation</span>
+          </ng-template>
+
+          <form [formGroup]="dForm" (ngSubmit)="registerDriver()" class="tab-form" novalidate>
+            <div class="name-grid">
+              <div class="form-field-group">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName" autocomplete="given-name" aria-required="true" />
+                  <mat-icon matPrefix class="field-prefix-icon">person</mat-icon>
+                  <mat-error *ngIf="dControls['firstName'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                    <mat-icon class="error-inline-icon">error</mat-icon>
+                    <span>First name is required.</span>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-field-group">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName" autocomplete="family-name" aria-required="true" />
+                  <mat-icon matPrefix class="field-prefix-icon">person_outline</mat-icon>
+                  <mat-error *ngIf="dControls['lastName'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                    <mat-icon class="error-inline-icon">error</mat-icon>
+                    <span>Last name is required.</span>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Driver Phone Number</mat-label>
+                <input matInput formControlName="phone" class="font-mono" autocomplete="tel" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">phone</mat-icon>
+                <mat-error *ngIf="dControls['phone'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Driver phone number is required.</span>
+                </mat-error>
+                <mat-error *ngIf="dControls['phone'].hasError('pattern') && !dControls['phone'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Enter valid 10-digit driver phone (e.g. 0922003344 or 0722003344).</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Driving License Number</mat-label>
+                <input matInput formControlName="licenseNumber" class="font-mono" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">badge</mat-icon>
+                <mat-error *ngIf="dControls['licenseNumber'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Driving license number is required.</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Preferred Route Selection -->
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Preferred Transit Route / Corridor</mat-label>
+                <mat-select formControlName="preferredRouteId">
+                  <mat-option [value]="null">-- Select Preferred Route (Optional) --</mat-option>
+                  <mat-option *ngFor="let r of routes()" [value]="r.id">
+                    {{ r.routeCode }}: {{ r.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix class="field-prefix-icon">alt_route</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Create Password</mat-label>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">lock</mat-icon>
+                <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'" tabindex="-1">
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="dControls['password'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password is required.</span>
+                </mat-error>
+                <mat-error *ngIf="dControls['password'].hasError('weakPassword') && !dControls['password'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password must be at least 8 characters with uppercase, lowercase, and a number.</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-field-group">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password" aria-required="true" />
+                <mat-icon matPrefix class="field-prefix-icon">lock_reset</mat-icon>
+                <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button" [attr.aria-label]="hideConfirmPassword ? 'Show password' : 'Hide password'" tabindex="-1">
+                  <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="dControls['confirmPassword'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Password confirmation is required.</span>
+                </mat-error>
+                <mat-error *ngIf="dControls['confirmPassword'].hasError('passwordMismatch') && !dControls['confirmPassword'].hasError('required')" role="alert" aria-live="polite" class="error-msg-red">
+                  <mat-icon class="error-inline-icon">error</mat-icon>
+                  <span>Passwords do not match.</span>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <button mat-flat-button class="btn-cyber full-width submit-btn" type="submit" [disabled]="isLoading()">
+              <mat-spinner *ngIf="isLoading()" diameter="20" class="btn-spinner"></mat-spinner>
+              <mat-icon *ngIf="!isLoading()">local_taxi</mat-icon>
+              <span>{{ isLoading() ? 'Submitting Application...' : 'Submit Driver Application' }}</span>
+            </button>
+          </form>
+        </mat-tab>
+      </mat-tab-group>
+
+      <div class="auth-card-footer">
+        <span>Already have an account?</span>
+        <a [routerLink]="['/login']" [queryParams]="{ role: selectedTabIndex === 1 ? 'driver' : 'passenger' }" class="login-link">
+          Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,254 @@
+.auth-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 30px 16px;
+  width: 100%;
+}
+
+.auth-card-box {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.back-home-wrap {
+  margin-bottom: 16px;
+
+  .back-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-taxi-blue-light);
+    }
+
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .logo-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px auto;
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+
+    mat-icon {
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      color: #ffffff;
+    }
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.register-form-card {
+  padding: 32px 28px;
+}
+
+.auth-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+
+  .alert-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .alert-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .alert-close {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    flex-shrink: 0;
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &.error-banner {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #dc2626;
+
+    .alert-icon { color: #ef4444; }
+  }
+}
+
+body.dark-theme .auth-alert-banner.error-banner {
+  color: #fca5a5;
+}
+
+.tab-icon {
+  margin-right: 6px;
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.tab-form {
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-field-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    overflow: visible;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .field-prefix-icon {
+    margin-right: 8px;
+    color: var(--text-secondary);
+  }
+
+  // Explicit RED error styling
+  .error-msg-red, .error-inline-icon {
+    color: #ef4444 !important;
+  }
+
+  .error-msg-red {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .error-inline-icon {
+    font-size: 0.9rem !important;
+    width: 0.9rem !important;
+    height: 0.9rem !important;
+  }
+
+  .submit-btn {
+    height: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+.auth-card-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-glass);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+
+  .login-link {
+    color: var(--color-taxi-blue-light);
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+:host-context(body.light-theme),
+:host-context(.light-theme),
+body.light-theme,
+html.light-theme,
+[data-theme='light'] {
+  .register-card-container .glass-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .register-header h1 {
+    color: #0f172a !important;
+  }
+
+  .register-header p {
+    color: #64748b !important;
+  }
+
+  .auth-card-footer .login-link {
+    color: var(--color-taxi-blue-dark);
+  }
+}
+
+.btn-spinner {
+  margin-right: 6px;
+}
+
+@media (max-width: 600px) {
+  .tab-form .name-grid {
+    grid-template-columns: 1fr;
+  }
+}

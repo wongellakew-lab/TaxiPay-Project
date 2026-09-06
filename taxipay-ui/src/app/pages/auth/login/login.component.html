@@ -1,0 +1,338 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- ─────────────────────────────────────────────────────────
+         LEFT: HERO PANEL (Ethiopian Transportation Visual)
+         ───────────────────────────────────────────────────────── -->
+    <aside class="hero-panel" style="background-image: url('assets/login-hero-taxi.jpg');">
+      <div class="hero-gradient"></div>
+
+      <!-- Top: Live network badge -->
+      <div class="hero-top">
+        <div class="hero-live-badge">
+          <span class="live-dot"></span>
+          <span>ETHIOPIAN SMART TRANSIT</span>
+        </div>
+      </div>
+
+      <!-- Bottom: Headline & feature chips -->
+      <div class="hero-bottom">
+        <div class="hero-headline-block">
+          <h1 class="hero-headline">
+            Ethiopia<br>
+            Moves <span class="hero-cyan">Together</span>
+          </h1>
+          <p class="hero-sub">
+            Smart rides. Safe journeys.<br>
+            Seamless digital transit payments across every corridor.
+          </p>
+        </div>
+
+        <div class="hero-chips">
+          <div class="hero-chip">
+            <div class="chip-icon-box">
+              <mat-icon>verified_user</mat-icon>
+            </div>
+            <div class="chip-content">
+              <span class="chip-title">Safe &amp; Verified</span>
+              <span class="chip-sub">Licensed drivers &amp; fixed rates</span>
+            </div>
+          </div>
+          <div class="hero-chip">
+            <div class="chip-icon-box">
+              <mat-icon>bolt</mat-icon>
+            </div>
+            <div class="chip-content">
+              <span class="chip-title">Tap &amp; Pay</span>
+              <span class="chip-sub">Wallet · QR · Telebirr</span>
+            </div>
+          </div>
+          <div class="hero-chip">
+            <div class="chip-icon-box">
+              <mat-icon>directions_bus</mat-icon>
+            </div>
+            <div class="chip-content">
+              <span class="chip-title">All Corridors</span>
+              <span class="chip-sub">Connected city-wide network</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ─────────────────────────────────────────────────────────
+         RIGHT: AUTHENTICATION FORM PANEL
+         ───────────────────────────────────────────────────────── -->
+    <main class="form-panel">
+
+      <!-- Top utility bar with theme switch -->
+      <div class="panel-topbar">
+        <div class="sys-badge">
+          <span class="sys-dot"></span>
+          <span class="sys-label">LIVE SYSTEM</span>
+        </div>
+        <button class="theme-btn" type="button"
+          (click)="auth.toggleTheme()"
+          [matTooltip]="auth.theme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          aria-label="Toggle theme">
+          <mat-icon>{{ auth.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <span class="theme-btn-text">{{ auth.theme() === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+        </button>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- ── BESPOKE TAXIPAY LOGO ── -->
+        <div class="logo-block">
+          <div class="brand-emblem-wrap">
+            <!-- Custom Vector TaxiPay Transit + Payment Emblem -->
+            <svg class="brand-emblem-svg" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0284c7"/>
+                  <stop offset="100%" stop-color="#2563eb"/>
+                </linearGradient>
+                <linearGradient id="goldArcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#f59e0b"/>
+                </linearGradient>
+                <linearGradient id="roofGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#fbbf24"/>
+                  <stop offset="100%" stop-color="#f59e0b"/>
+                </linearGradient>
+                <filter id="emblemGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0284c7" flood-opacity="0.35"/>
+                </filter>
+              </defs>
+
+              <!-- Outer rounded badge container -->
+              <rect x="6" y="6" width="84" height="84" rx="24" fill="url(#shieldGrad)" fill-opacity="0.12" stroke="url(#shieldGrad)" stroke-width="2" filter="url(#emblemGlow)"/>
+
+              <!-- Contactless / Digital Payment Radio Arcs (Upper Right) -->
+              <path d="M64 26 C70 32, 70 42, 64 48" stroke="url(#goldArcGrad)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M72 18 C82 28, 82 46, 72 56" stroke="url(#goldArcGrad)" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+              <circle cx="56" cy="37" r="3.5" fill="url(#goldArcGrad)"/>
+
+              <!-- Taxi / Minibus Silhouette -->
+              <!-- Roof sign (TAXI) -->
+              <rect x="36" y="28" width="18" height="6" rx="2" fill="url(#roofGrad)"/>
+              
+              <!-- Vehicle Cabin & Body -->
+              <path d="M20 54 L27 38 C28.5 35, 31 34, 34 34 L56 34 C59 34, 61 35.5, 62.5 38 L68 54 Z" fill="#38bdf8" fill-opacity="0.25" stroke="#38bdf8" stroke-width="2.5" stroke-linejoin="round"/>
+              
+              <!-- Front & Rear Windshields Divider -->
+              <path d="M44 34 L44 48" stroke="#38bdf8" stroke-width="2"/>
+              <path d="M26 48 L64 48" stroke="#38bdf8" stroke-width="1.8"/>
+
+              <!-- Lower Vehicle Chassis (White lower half of Ethiopian taxi) -->
+              <rect x="16" y="52" width="56" height="14" rx="4" fill="#ffffff" fill-opacity="0.9" stroke="#38bdf8" stroke-width="2"/>
+
+              <!-- Wheels -->
+              <circle cx="28" cy="66" r="6" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+              <circle cx="60" cy="66" r="6" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+              <circle cx="28" cy="66" r="2" fill="#38bdf8"/>
+              <circle cx="60" cy="66" r="2" fill="#38bdf8"/>
+            </svg>
+          </div>
+
+          <div class="logo-wordmark">
+            <div class="wordmark-line">
+              <span class="wm-taxi">TAXI</span><span class="wm-pay">PAY</span>
+              <!-- Ethiopian National Flag Tag -->
+              <span class="wm-et-badge">
+                <span class="et-stripe green"></span>
+                <span class="et-stripe yellow"></span>
+                <span class="et-stripe red"></span>
+                <span class="et-text font-mono">ET</span>
+              </span>
+            </div>
+            <div class="wordmark-sub">
+              <span class="wm-amharic">ታክሲ ፔይ</span>
+              <span class="wm-sep">•</span>
+              <span class="wm-tag font-mono">DIGITAL TRANSIT SYSTEM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ROLE TABS (Passenger vs Driver) ── -->
+        <div class="role-tabs" role="tablist" aria-label="Select login role">
+          <button type="button" class="role-tab" role="tab"
+            [class.active]="selectedRole() === 'passenger'"
+            (click)="setRole('passenger')"
+            [attr.aria-selected]="selectedRole() === 'passenger'"
+            id="tab-passenger">
+            <mat-icon>person</mat-icon>
+            <span>Passenger Login</span>
+          </button>
+          <button type="button" class="role-tab" role="tab"
+            [class.active]="selectedRole() === 'driver'"
+            (click)="setRole('driver')"
+            [attr.aria-selected]="selectedRole() === 'driver'"
+            id="tab-driver">
+            <mat-icon>local_taxi</mat-icon>
+            <span>Driver Login</span>
+          </button>
+        </div>
+
+        <!-- ── FORM HEADING ── -->
+        <div class="form-heading">
+          <span class="form-eyebrow">Welcome back</span>
+          <h2 class="form-title">
+            {{ selectedRole() === 'passenger' ? 'Passenger Sign In' : 'Driver Sign In' }}
+          </h2>
+          <p class="form-desc">
+            Sign in to your account to access your {{ selectedRole() === 'passenger'
+              ? 'commuter wallet, live fares &amp; trip history'
+              : 'driver cockpit, corridor shifts &amp; daily payouts' }}
+          </p>
+        </div>
+
+        <!-- ── ALERTS ── -->
+        <div *ngIf="errorMessage()" class="alert alert-error" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span class="alert-msg">{{ errorMessage() }}</span>
+          <button type="button" class="alert-close" (click)="errorMessage.set(null)" aria-label="Dismiss alert">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div *ngIf="showForgotHelp()" class="alert alert-info" role="status">
+          <mat-icon>info_outline</mat-icon>
+          <div class="alert-msg">
+            <strong>Password Recovery</strong> — Contact TaxiPay Support at
+            <strong>+251-11-555-TAXI</strong> or visit your registered station manager with your verification ID to reset your credentials.
+          </div>
+          <button type="button" class="alert-close" (click)="showForgotHelp.set(false)" aria-label="Dismiss help">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- ── 1. PASSENGER FORM ── -->
+        <form *ngIf="selectedRole() === 'passenger'"
+          [formGroup]="passengerForm" (ngSubmit)="loginPassenger()"
+          class="auth-form" autocomplete="off" novalidate>
+
+          <div class="field">
+            <label class="field-label" for="p-id">Email or Phone number</label>
+            <div class="field-input" [class.field-error]="pControls?.['identifier']?.invalid && pControls?.['identifier']?.touched">
+              <mat-icon class="fi-icon">mail_outline</mat-icon>
+              <input id="p-id" type="text" formControlName="identifier"
+                placeholder="e.g. name@email.com or 0911223344"
+                autocomplete="off" autocapitalize="none" spellcheck="false"/>
+            </div>
+            <span class="field-hint error" *ngIf="pControls?.['identifier']?.hasError('required') && pControls?.['identifier']?.touched">
+              Email or phone number is required.
+            </span>
+            <span class="field-hint error" *ngIf="pControls?.['identifier']?.hasError('invalidEmail') && pControls?.['identifier']?.touched">
+              Enter a valid email address (e.g. name&#64;domain.com).
+            </span>
+            <span class="field-hint error" *ngIf="pControls?.['identifier']?.hasError('invalidPhone') && pControls?.['identifier']?.touched">
+              Enter a valid 10-digit phone (e.g. 0911223344 or 0711223344).
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="p-pw">Password</label>
+            <div class="field-input" [class.field-error]="pControls?.['password']?.invalid && pControls?.['password']?.touched">
+              <mat-icon class="fi-icon">lock_outline</mat-icon>
+              <input id="p-pw" [type]="hidePassword ? 'password' : 'text'"
+                formControlName="password" placeholder="Enter your password"
+                autocomplete="new-password"/>
+              <button type="button" class="eye-btn" (click)="hidePassword = !hidePassword" tabindex="-1"
+                [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-hint error" *ngIf="pControls?.['password']?.hasError('required') && pControls?.['password']?.touched">
+              Password is required.
+            </span>
+            <span class="field-hint error" *ngIf="pControls?.['password']?.hasError('weakPassword') && !pControls?.['password']?.hasError('required') && pControls?.['password']?.touched">
+              Password must be 8+ characters and contain uppercase, lowercase, and a number.
+            </span>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="rememberMe"/>
+              <span>Remember me</span>
+            </label>
+            <button type="button" class="forgot-btn" (click)="toggleForgotHelp()">Forgot password?</button>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isLoading()">
+            <mat-spinner *ngIf="isLoading()" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="!isLoading()">login</mat-icon>
+            <span>{{ isLoading() ? 'Signing in…' : 'Sign In as Passenger' }}</span>
+          </button>
+
+          <p class="form-footer">
+            Don't have an account?
+            <a [routerLink]="['/register']" [queryParams]="{ role: 'passenger' }">Sign up</a>
+          </p>
+        </form>
+
+        <!-- ── 2. DRIVER FORM ── -->
+        <form *ngIf="selectedRole() === 'driver'"
+          [formGroup]="driverForm" (ngSubmit)="loginDriver()"
+          class="auth-form" autocomplete="off" novalidate>
+
+          <div class="field">
+            <label class="field-label" for="d-id">Driver Registered Phone or ID</label>
+            <div class="field-input" [class.field-error]="dControls?.['identifier']?.invalid && dControls?.['identifier']?.touched">
+              <mat-icon class="fi-icon">local_taxi</mat-icon>
+              <input id="d-id" type="text" formControlName="identifier"
+                placeholder="e.g. 0911223344"
+                autocomplete="off" autocapitalize="none" spellcheck="false" class="font-mono"/>
+            </div>
+            <span class="field-hint error" *ngIf="dControls?.['identifier']?.hasError('required') && dControls?.['identifier']?.touched">
+              Driver phone or ID is required.
+            </span>
+            <span class="field-hint error" *ngIf="dControls?.['identifier']?.hasError('invalidPhone') && dControls?.['identifier']?.touched">
+              Enter a valid 10-digit driver phone (e.g. 0911223344).
+            </span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="d-pw">Driver Password</label>
+            <div class="field-input" [class.field-error]="dControls?.['password']?.invalid && dControls?.['password']?.touched">
+              <mat-icon class="fi-icon">lock_outline</mat-icon>
+              <input id="d-pw" [type]="hidePassword ? 'password' : 'text'"
+                formControlName="password" placeholder="Enter your driver password"
+                autocomplete="new-password"/>
+              <button type="button" class="eye-btn" (click)="hidePassword = !hidePassword" tabindex="-1"
+                [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-hint error" *ngIf="dControls?.['password']?.hasError('required') && dControls?.['password']?.touched">
+              Driver password is required.
+            </span>
+            <span class="field-hint error" *ngIf="dControls?.['password']?.hasError('weakPassword') && !dControls?.['password']?.hasError('required') && dControls?.['password']?.touched">
+              Password must be 8+ characters and contain uppercase, lowercase, and a number.
+            </span>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="rememberMe"/>
+              <span>Remember me</span>
+            </label>
+            <button type="button" class="forgot-btn" (click)="toggleForgotHelp()">Forgot password?</button>
+          </div>
+
+          <button type="submit" class="submit-btn submit-driver" [disabled]="isLoading()">
+            <mat-spinner *ngIf="isLoading()" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="!isLoading()">local_taxi</mat-icon>
+            <span>{{ isLoading() ? 'Signing in…' : 'Sign In as Driver' }}</span>
+          </button>
+
+          <p class="form-footer">
+            Want to drive with us?
+            <a [routerLink]="['/register']" [queryParams]="{ role: 'driver' }">Register as Driver</a>
+          </p>
+        </form>
+
+      </div><!-- /panel-body -->
+    </main>
+  </div>
+</div>
