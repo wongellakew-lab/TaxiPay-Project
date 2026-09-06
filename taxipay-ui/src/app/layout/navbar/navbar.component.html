@@ -1,0 +1,103 @@
+<header class="navbar-header glass-panel">
+  <div class="nav-left">
+    <!-- Logo with Ethiopian Blue Taxi Graphic -->
+    <a [routerLink]="auth.isLoggedIn() ? auth.getDashboardRoute() : '/login'" class="brand-link">
+      <div class="logo-icon-box">
+        <mat-icon class="taxi-icon">directions_bus</mat-icon>
+      </div>
+      <div class="logo-text">
+        <div class="brand-taxipay">
+          <span class="brand-blue">TAXI</span><span class="brand-gold">PAY</span>
+          <span class="ethiopia-tag font-mono">ET</span>
+        </div>
+        <span class="brand-sub">BLUE MINIBUS TRANSIT</span>
+      </div>
+    </a>
+
+    <!-- Role Mode Pill -->
+    <div *ngIf="auth.isLoggedIn()" class="role-pill" [class.admin]="auth.isAdmin()" [class.driver]="auth.isDriver()" [class.passenger]="auth.isPassenger()">
+      <span class="live-dot"></span>
+      <span>{{ auth.isAdmin() ? 'ADMIN EXECUTIVE' : (auth.isDriver() ? 'DRIVER COCKPIT' : 'PASSENGER COMMUTER') }}</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <!-- Theme Toggle -->
+    <button mat-icon-button (click)="auth.toggleTheme()" [matTooltip]="auth.theme() === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'" class="theme-btn">
+      <mat-icon>{{ auth.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <!-- Notification Center -->
+    <app-notification-center *ngIf="auth.isLoggedIn()"></app-notification-center>
+
+    <!-- User Menu if logged in -->
+    <ng-container *ngIf="auth.isLoggedIn() && auth.currentUser() as user; else loginBtn">
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-profile-btn" aria-label="Open user profile menu">
+        <div class="user-avatar-circle" [class.admin-avatar]="auth.isAdmin()" [class.driver-avatar]="auth.isDriver()">
+          <span>{{ user.firstName.charAt(0) }}</span>
+        </div>
+        <div class="user-name-col">
+          <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+          <span class="user-role-label font-mono">{{ auth.isAdmin() ? 'Super Admin' : (user.driverCode ? 'Driver #' + user.driverCode : 'Passenger') }}</span>
+        </div>
+        <mat-icon class="chevron-icon">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before" class="glass-menu">
+        <div class="menu-header-info">
+          <div class="menu-user-name">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="menu-user-phone font-mono">{{ user.email || user.phone }}</div>
+          <div class="menu-role-tag font-mono">{{ user.role | uppercase }}</div>
+        </div>
+        <mat-divider></mat-divider>
+        
+        <ng-container *ngIf="auth.isAdmin()">
+          <button mat-menu-item routerLink="/admin/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            <span>Admin Dashboard</span>
+          </button>
+          <button mat-menu-item routerLink="/admin/drivers">
+            <mat-icon>badge</mat-icon>
+            <span>Driver Approvals</span>
+          </button>
+          <button mat-menu-item routerLink="/admin/disputes">
+            <mat-icon>gavel</mat-icon>
+            <span>Dispute Resolution</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="!auth.isAdmin()">
+          <button mat-menu-item [routerLink]="auth.isDriver() ? '/driver/dashboard' : '/passenger/dashboard'">
+            <mat-icon>dashboard</mat-icon>
+            <span>My Dashboard</span>
+          </button>
+          <button mat-menu-item [routerLink]="auth.isDriver() ? '/driver/profile' : '/passenger/profile'">
+            <mat-icon>badge</mat-icon>
+            <span>View Profile</span>
+          </button>
+          <button mat-menu-item *ngIf="auth.isPassenger()" [routerLink]="'/passenger/profile'">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span>Top Up Wallet</span>
+          </button>
+          <button mat-menu-item *ngIf="auth.isDriver()" [routerLink]="'/driver/shift-summary'">
+            <mat-icon>payments</mat-icon>
+            <span>Shift & Revenue</span>
+          </button>
+        </ng-container>
+
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="auth.logout()">
+          <mat-icon color="warn">logout</mat-icon>
+          <span class="text-danger">Sign Out</span>
+        </button>
+      </mat-menu>
+    </ng-container>
+
+    <ng-template #loginBtn>
+      <a *ngIf="!isAuthPage()" mat-flat-button class="btn-taxi-blue" routerLink="/login">
+        <mat-icon>login</mat-icon>
+        <span>Sign In</span>
+      </a>
+    </ng-template>
+  </div>
+</header>

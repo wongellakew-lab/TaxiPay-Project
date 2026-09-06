@@ -1,0 +1,199 @@
+<aside class="sidebar-container glass-panel">
+  <!-- Section: Navigation Links -->
+  <div class="nav-sections">
+    <!-- Admin Portal (Only for authenticated Admins) -->
+    <ng-container *ngIf="auth.isAdmin()">
+      <div class="section-title admin-title">ADMIN CONSOLE</div>
+      <nav class="nav-list">
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item highlight-admin">
+          <mat-icon>dashboard</mat-icon>
+          <span>Admin Dashboard</span>
+        </a>
+        <a routerLink="/admin/drivers" routerLinkActive="active" class="nav-item">
+          <mat-icon>badge</mat-icon>
+          <span>Driver Management</span>
+          <span class="nav-badge badge-blue font-mono" *ngIf="driverMgmtStore.pendingApprovalCount() > 0">
+            {{ driverMgmtStore.pendingApprovalCount() }}
+          </span>
+        </a>
+        <a routerLink="/admin/routes" routerLinkActive="active" class="nav-item">
+          <mat-icon>alt_route</mat-icon>
+          <span>Route Network</span>
+        </a>
+        <a routerLink="/admin/fares" routerLinkActive="active" class="nav-item">
+          <mat-icon>price_change</mat-icon>
+          <span>Fare Matrices</span>
+        </a>
+        <a routerLink="/admin/route-requests" routerLinkActive="active" class="nav-item">
+          <mat-icon>sync_alt</mat-icon>
+          <span>Route Requests</span>
+          <span class="nav-badge badge-amber font-mono" *ngIf="routeRequestStore.pendingCount() > 0">
+            {{ routeRequestStore.pendingCount() }}
+          </span>
+        </a>
+        <a routerLink="/admin/disputes" routerLinkActive="active" class="nav-item">
+          <mat-icon>gavel</mat-icon>
+          <span>Dispute Resolution</span>
+          <span class="nav-badge badge-red font-mono" *ngIf="disputeStore.openCount() > 0">
+            {{ disputeStore.openCount() }}
+          </span>
+        </a>
+        <a routerLink="/admin/analytics" routerLinkActive="active" class="nav-item">
+          <mat-icon>analytics</mat-icon>
+          <span>System Analytics</span>
+        </a>
+        <a routerLink="/admin/profile" routerLinkActive="active" class="nav-item">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>My Profile</span>
+        </a>
+      </nav>
+    </ng-container>
+
+    <!-- Passenger Portal (Only for authenticated Passengers) -->
+    <ng-container *ngIf="auth.isPassenger()">
+      <div class="section-title">PASSENGER PORTAL</div>
+      <nav class="nav-list">
+        <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-item">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/passenger/pay" routerLinkActive="active" class="nav-item highlight-pay">
+          <mat-icon>qr_code_scanner</mat-icon>
+          <span>Pay Ride / Fare</span>
+        </a>
+        <a routerLink="/passenger/trips" routerLinkActive="active" class="nav-item">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Ride History</span>
+        </a>
+        <a routerLink="/passenger/fare-matrix" routerLinkActive="active" class="nav-item">
+          <mat-icon>map</mat-icon>
+          <span>Fare Calculator</span>
+        </a>
+        <a routerLink="/passenger/route-requests" routerLinkActive="active" class="nav-item">
+          <mat-icon>alt_route</mat-icon>
+          <span>Route Requests</span>
+        </a>
+        <a routerLink="/passenger/profile" routerLinkActive="active" class="nav-item">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span>Wallet & Profile</span>
+        </a>
+      </nav>
+    </ng-container>
+
+    <!-- Driver Portal (Only for authenticated Drivers) -->
+    <ng-container *ngIf="auth.isDriver()">
+      <div class="section-title">DRIVER PORTAL</div>
+      <nav class="nav-list">
+        <a routerLink="/driver/dashboard" routerLinkActive="active" class="nav-item highlight-driver">
+          <mat-icon>list_alt</mat-icon>
+          <span>Paid Passengers Manifest</span>
+        </a>
+        <a routerLink="/driver/shift-summary" routerLinkActive="active" class="nav-item">
+          <mat-icon>query_stats</mat-icon>
+          <span>Shift & Revenue</span>
+        </a>
+        <a routerLink="/driver/route-change" routerLinkActive="active" class="nav-item">
+          <mat-icon>alt_route</mat-icon>
+          <span>Route & Transfer</span>
+        </a>
+        <a routerLink="/driver/profile" routerLinkActive="active" class="nav-item">
+          <mat-icon>badge</mat-icon>
+          <span>Driver Profile</span>
+        </a>
+      </nav>
+    </ng-container>
+
+    <!-- Guest / Unauthenticated Section -->
+    <ng-container *ngIf="!auth.isLoggedIn()">
+      <div class="section-title">GET STARTED</div>
+      <nav class="nav-list">
+        <a routerLink="/login" [queryParams]="{ role: 'passenger' }" routerLinkActive="active" class="nav-item">
+          <mat-icon>person</mat-icon>
+          <span>Passenger Sign In</span>
+        </a>
+        <a routerLink="/login" [queryParams]="{ role: 'driver' }" routerLinkActive="active" class="nav-item">
+          <mat-icon>local_taxi</mat-icon>
+          <span>Driver Sign In</span>
+        </a>
+        <a routerLink="/admin/login" routerLinkActive="active" class="nav-item">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Admin Console</span>
+        </a>
+        <a routerLink="/register" routerLinkActive="active" class="nav-item">
+          <mat-icon>how_to_reg</mat-icon>
+          <span>Create Account</span>
+        </a>
+      </nav>
+    </ng-container>
+
+    <!-- Quick Switcher Link -->
+    <mat-divider class="my-3"></mat-divider>
+    <div class="section-title">SYSTEM</div>
+    <nav class="nav-list">
+      <ng-container *ngIf="auth.isLoggedIn()">
+        <button mat-button class="nav-item logout-btn" (click)="auth.logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sign Out</span>
+        </button>
+      </ng-container>
+    </nav>
+  </div>
+
+  <!-- Footer Widget: Active Status -->
+  <div class="sidebar-status-widget glass-card">
+    <ng-container *ngIf="auth.isAdmin()">
+      <div class="widget-header">
+        <div class="live-indicator admin-indicator">
+          <span class="pulse-dot admin-dot"></span>
+          <span>PLATFORM ONLINE</span>
+        </div>
+        <span class="widget-sub font-mono">v1.0-PROD</span>
+      </div>
+      <div class="widget-metric">
+        <span class="label">Minibuses on Shift</span>
+        <span class="val font-mono text-gold">{{ adminStatsStore.activeMinibuses() }} Active</span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="auth.isDriver()">
+      <div class="widget-header">
+        <div class="live-indicator" [class.inactive]="!driverStore.isTripActive()">
+          <span class="pulse-dot" [class.dot-inactive]="!driverStore.isTripActive()"></span>
+          <span>{{ driverStore.isTripActive() ? 'TRIP ACTIVE' : 'SHIFT READY' }}</span>
+        </div>
+        <span class="widget-sub font-mono">{{ driverStore.routeCode() || 'Corridor' }}</span>
+      </div>
+      <div class="widget-metric">
+        <span class="label">Today's Revenue</span>
+        <span class="val font-mono text-cyan">{{ driverStore.todayRevenue() | number:'1.2-2' }} <small>ETB</small></span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="auth.isPassenger()">
+      <div class="widget-header">
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span>PASSENGER WALLET</span>
+        </div>
+      </div>
+      <div class="widget-metric">
+        <span class="label">Available Balance</span>
+        <span class="val font-mono text-cyan">{{ walletStore.balance() | number:'1.2-2' }} <small>ETB</small></span>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!auth.isLoggedIn()">
+      <div class="guest-widget">
+        <div class="guest-header">
+          <mat-icon class="shield-icon">security</mat-icon>
+          <span>Secure Transit</span>
+        </div>
+        <p class="guest-text">Sign in to access your digital wallet, route fares, and trip tickets.</p>
+        <a mat-flat-button class="btn-cyan full-width guest-btn" routerLink="/login">
+          <mat-icon>login</mat-icon>
+          <span>Sign In</span>
+        </a>
+      </div>
+    </ng-container>
+  </div>
+</aside>

@@ -1,0 +1,11 @@
+<div class="app-layout-wrapper" [class.no-sidebar-layout]="!showSidebar()" [class.auth-layout-wrapper]="isAuthRoute()">
+  <app-navbar *ngIf="showNavbar()"></app-navbar>
+  
+  <div class="main-content-layout" [class.full-width-layout]="!showSidebar()">
+    <app-sidebar *ngIf="showSidebar()"></app-sidebar>
+    
+    <main class="page-content-area" [class.centered-content]="!showSidebar()" [class.auth-page-area]="isAuthRoute()">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
